@@ -20,7 +20,7 @@ using namespace std;
 string format_size(uintmax_t size_in_bytes)
 {
     const char *units[] = {"B", "KB", "MB", "GB", "TB"};
-    int unit_index = 0;
+    size_t unit_index = 0;
     double size = static_cast<double>(size_in_bytes);
 
     while (size >= 1024 && unit_index < 4)
@@ -202,6 +202,7 @@ int main()
                     {
                         ImGui::TextWrapped("%s", line.c_str());
                     }
+
                     file.close();
                 }
                 else
