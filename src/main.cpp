@@ -149,7 +149,7 @@ int main()
         ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 
         // Display current Folder Name
-        ImGui::Text("%s", current_path.filename().string().c_str());
+        ImGui::TextWrapped("%s", current_path.filename().string().c_str());
 
         // Add "Back" button
         if (ImGui::Selectable("..") && current_path.has_parent_path())
