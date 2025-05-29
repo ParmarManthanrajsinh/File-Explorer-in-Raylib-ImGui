@@ -39,7 +39,7 @@ map<string, string> get_files_in_directory(const fs::path &path)
     map<string, string> files;
     if (fs::exists(path) && fs::is_directory(path))
     {
-        for (const fs::directory_entry &entry : fs::directory_iterator(path))
+        for (const auto &entry : fs::directory_iterator(path))
         {
             if (entry.is_regular_file())
             {
@@ -59,11 +59,11 @@ map<string, string> get_files_in_directory(const fs::path &path)
 
 int main()
 {
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE); 
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(900, 500, "File Explorer");
     SetTargetFPS(60);
 
-    rlImGuiSetup(true); 
+    rlImGuiSetup(true);
 
     // Initialize File Browser
     ImGui::FileBrowser file_browser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
