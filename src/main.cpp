@@ -47,7 +47,6 @@ map<string, string> get_files_in_directory(const fs::path &path)
             }
             else if (entry.is_directory())
             {
-                // Optionally handle directories
                 string dirname = entry.path().filename().string();
                 files.emplace(dirname, "[D]");
             }
@@ -60,7 +59,7 @@ int main()
 {
     // Initialization
     SetConfigFlags(FLAG_WINDOW_RESIZABLE); // Enable window resizing
-    InitWindow(900, 500, "rlImGui Example");
+    InitWindow(900, 500, "File Explorer");
     SetTargetFPS(60);
 
     // Initialize rlImGui
@@ -83,12 +82,12 @@ int main()
         // Start ImGui frame
         rlImGuiBegin();
 
-        // ImGui Code
+        /* ImGui Code */
 
         // Flag to control file explorer
         static bool open = false;
 
-        ImGui::GetStyle().FramePadding.y = 6.0f; // Increase padding to make menu bar taller
+        ImGui::GetStyle().FramePadding.y = 6.0f;
 
         if (ImGui::BeginMainMenuBar())
         {
@@ -183,7 +182,8 @@ int main()
 
         ImGui::End();
 
-        // End ImGui Frame
+        /* End ImGui Frame */
+
         rlImGuiEnd();
 
         EndDrawing();
