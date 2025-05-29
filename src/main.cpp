@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <iomanip>
 #include <map>
+#include <fstream>
+#include <array>
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -71,6 +73,13 @@ int main()
                                     ImGuiFileBrowserFlags_NoStatusBar | ImGuiFileBrowserFlags_CloseOnEsc);
 
     static fs::path current_path = fs::current_path(); // Start with the current working directory
+    static fs::path selected_file = fs::path();        // To store the selected file path
+
+    array<string, 33> supported_file_types = {
+        ".txt", ".cpp", ".h", ".hpp", ".c", ".py", ".js", ".html", ".css",
+        ".json", ".md", ".xml", ".yaml", ".ini", ".log", ".bat", ".sh", ".php",
+        ".rb", ".go", ".swift", ".ts", ".tsx", ".vue", ".sql", ".pl", ".lua",
+        ".r", ".dart", ".scala", ".rs", ".java", ".kt"};
 
     // Main game loop
     while (!WindowShouldClose())
@@ -175,9 +184,45 @@ int main()
                 }
                 else
                 {
-                    cout << "Selected file: " << file.first << endl;
+                    selected_file = current_path / file.first;
                 }
             }
+        }
+
+        // File Editor
+        if (selected_file != fs::path())
+        {
+            string file_name = selected_file.filename().string();
+            float side_menu_width = ImGui::GetWindowWidth(); // Get the current width of side menu
+
+            ImGui::SetNextWindowPos(ImVec2(210, ImGui::GetFrameHeight()), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(static_cast<float>(GetScreenWidth() - side_menu_width), static_cast<float>(GetScreenHeight())));
+            ImGui::SetNextWindowPos(ImVec2(side_menu_width, ImGui::GetFrameHeight()), ImGuiCond_Always);
+            ImGui::Begin(file_name.c_str(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+
+            if (find(supported_file_types.begin(), supported_file_types.end(), selected_file.extension()) != supported_file_types.end())
+            {
+                // Display file content for text files
+                ifstream file(selected_file);
+                if (file.is_open())
+                {
+                    string line;
+                    while (getline(file, line))
+                    {
+                        ImGui::TextWrapped("%s", line.c_str());
+                    }
+                    file.close();
+                }
+                else
+                {
+                    ImGui::Text("Could not open file.");
+                }
+            }
+            else
+            {
+                ImGui::Text("File type not supported for editing.");
+            }
+            ImGui::End();
         }
 
         ImGui::End();
