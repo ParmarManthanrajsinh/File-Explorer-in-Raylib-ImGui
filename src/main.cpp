@@ -59,13 +59,11 @@ map<string, string> get_files_in_directory(const fs::path &path)
 
 int main()
 {
-    // Initialization
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE); // Enable window resizing
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE); 
     InitWindow(900, 500, "File Explorer");
     SetTargetFPS(60);
 
-    // Initialize rlImGui
-    rlImGuiSetup(true); // true = auto load fonts
+    rlImGuiSetup(true); 
 
     // Initialize File Browser
     ImGui::FileBrowser file_browser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
@@ -81,19 +79,13 @@ int main()
         ".rb", ".go", ".swift", ".ts", ".tsx", ".vue", ".sql", ".pl", ".lua",
         ".r", ".dart", ".scala", ".rs", ".java", ".kt"};
 
-    // Main game loop
     while (!WindowShouldClose())
     {
-        // Start Drawing
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        // Start ImGui frame
         rlImGuiBegin();
 
-        /* ImGui Code */
-
-        // Flag to control file explorer
         static bool open = false;
 
         ImGui::GetStyle().FramePadding.y = 6.0f;
@@ -202,7 +194,6 @@ int main()
 
             if (find(supported_file_types.begin(), supported_file_types.end(), selected_file.extension()) != supported_file_types.end())
             {
-                // Display file content for text files
                 ifstream file(selected_file);
                 if (file.is_open())
                 {
@@ -215,26 +206,21 @@ int main()
                 }
                 else
                 {
-                    ImGui::Text("Could not open file.");
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Could not open file.");
                 }
             }
             else
             {
-                ImGui::Text("File type not supported for editing.");
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unsupported file format for preview");
             }
             ImGui::End();
         }
 
         ImGui::End();
-
-        /* End ImGui Frame */
-
         rlImGuiEnd();
-
         EndDrawing();
     }
 
-    // Cleanup
     rlImGuiShutdown();
     CloseWindow();
     return 0;
