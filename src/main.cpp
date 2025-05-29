@@ -207,12 +207,12 @@ int main()
                 }
                 else
                 {
-                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Could not open file.");
+                    ImGui::TextColored({1, 0, 0, 1}, "Error: Can't open file"); // RGBA Red color
                 }
             }
             else
             {
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unsupported file format for preview");
+                ImGui::TextColored({1, 0, 0, 1}, "Unsupported file format for preview"); // RGBA Red color
             }
             ImGui::End();
         }
