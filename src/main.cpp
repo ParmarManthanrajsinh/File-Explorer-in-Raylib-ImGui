@@ -14,6 +14,8 @@
 #include <fstream>
 #include <array>
 
+#define MAX_BUFFER_SIZE (5 * 1024 * 1024) // 5MB buffer
+
 namespace fs = std::filesystem;
 using namespace std;
 
@@ -74,6 +76,8 @@ int main()
 
     static fs::path current_path = fs::current_path(); // Start with the current working directory
     static fs::path selected_file = fs::path();        // To store the selected file path
+    static string file_content;                        // Store file content for editing
+    static bool file_loaded = false;                   // Track if file is loaded
 
     array<string, 33> supported_file_types = {
         ".txt", ".cpp", ".h", ".hpp", ".c", ".py", ".js", ".html", ".css",
@@ -86,7 +90,7 @@ int main()
     {
         // Start Drawing
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(BLACK);
 
         // Start ImGui frame
         rlImGuiBegin();
@@ -95,6 +99,7 @@ int main()
 
         // Flag to control file explorer
         static bool open = false;
+        static bool save = false;
 
         ImGui::GetStyle().FramePadding.y = 6.0f;
 
@@ -106,8 +111,9 @@ int main()
                 {
                     open = !open;
                 }
-                if (ImGui::MenuItem("Save"))
+                if (ImGui::MenuItem("Save") && selected_file != fs::path())
                 {
+                    save = !save;
                 }
                 if (ImGui::MenuItem("Exit"))
                 {
@@ -149,6 +155,22 @@ int main()
             }
         }
 
+        if (save && selected_file != fs::path())
+        {
+            ofstream out_file(selected_file, ios::out | ios::binary);
+            if (out_file.is_open())
+            {
+                out_file.write(file_content.data(), file_content.size());
+                out_file.close();
+                save = false; // Reset save flag after saving
+            }
+            else
+            {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+                                   "Could not save file: %s", selected_file.string().c_str());
+            }
+        }
+
         // Create a side menu window with fixed position and full height
         ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()), ImGuiCond_Always);
         ImGui::SetNextWindowSizeConstraints(
@@ -185,6 +207,7 @@ int main()
                 else
                 {
                     selected_file = current_path / file.first;
+                    file_loaded = false;
                 }
             }
         }
@@ -196,26 +219,43 @@ int main()
             float side_menu_width = ImGui::GetWindowWidth(); // Get the current width of side menu
 
             ImGui::SetNextWindowPos(ImVec2(210, ImGui::GetFrameHeight()), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(static_cast<float>(GetScreenWidth() - side_menu_width), static_cast<float>(GetScreenHeight())));
+            ImGui::SetNextWindowSize(ImVec2(static_cast<float>(GetScreenWidth() - side_menu_width),
+                                            static_cast<float>(GetScreenHeight() - ImGui::GetFrameHeight())));
             ImGui::SetNextWindowPos(ImVec2(side_menu_width, ImGui::GetFrameHeight()), ImGuiCond_Always);
             ImGui::Begin(file_name.c_str(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-            if (find(supported_file_types.begin(), supported_file_types.end(), selected_file.extension()) != supported_file_types.end())
+            if (find(supported_file_types.begin(), supported_file_types.end(),
+                     selected_file.extension()) != supported_file_types.end())
             {
-                // Display file content for text files
-                ifstream file(selected_file);
-                if (file.is_open())
+                if (!file_loaded) // Load file only once when selected
                 {
-                    string line;
-                    while (getline(file, line))
+                    ifstream file(selected_file, ios::in | ios::binary);
+                    if (file.is_open())
                     {
-                        ImGui::TextWrapped("%s", line.c_str());
+                        file.seekg(0, ios::end);
+                        size_t fileSize = file.tellg();
+                        file.seekg(0, ios::beg);
+
+                        if (fileSize > MAX_BUFFER_SIZE)
+                        {
+                            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+                                               "File too large! Maximum size: %d MB",
+                                               MAX_BUFFER_SIZE / (1024 * 1024));
+                        }
+                        else
+                        {
+                            file_content.resize(fileSize);
+                            file.read(&file_content[0], fileSize);
+                            file_loaded = true;
+                        }
+                        file.close();
                     }
-                    file.close();
                 }
-                else
+
+                if (file_loaded)
                 {
-                    ImGui::Text("Could not open file.");
+                    // Display editor with save capability
+                    ImGui::InputTextMultiline("##multiline", &file_content[0], file_content.capacity(), ImVec2(-1, -1));
                 }
             }
             else
@@ -223,6 +263,10 @@ int main()
                 ImGui::Text("File type not supported for editing.");
             }
             ImGui::End();
+        }
+        else
+        {
+            file_loaded = false; // Reset when no file is selected
         }
 
         ImGui::End();
