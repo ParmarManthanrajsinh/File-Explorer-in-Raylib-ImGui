@@ -82,7 +82,7 @@ int main()
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(BLACK);
 
         rlImGuiBegin();
 
@@ -134,10 +134,10 @@ int main()
 
             if (file_browser.HasSelected())
             {
+                open = false;                               // Close the file browser first
                 file_browser.ClearSelected();               // Clear selection for next use
                 current_path = file_browser.GetDirectory(); // Update current path to selected directory
-                open = false;                               // Close the file browser after selection
-                file_browser.Close();                       // Close the file browser
+                file_browser.Close();
             }
         }
 
