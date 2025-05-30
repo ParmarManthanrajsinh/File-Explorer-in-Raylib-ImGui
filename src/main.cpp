@@ -7,9 +7,7 @@
 #include <imfilebrowser.h>
 
 // Standard C++ headers
-#include <iostream>
 #include <filesystem>
-#include <iomanip>
 #include <map>
 #include <fstream>
 #include <array>
