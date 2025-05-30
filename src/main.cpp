@@ -165,7 +165,7 @@ int main()
             }
             else
             {
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+                ImGui::TextColored({1, 0, 0, 1}, // RGBA Red color
                                    "Could not save file: %s", selected_file.string().c_str());
             }
         }
@@ -238,7 +238,7 @@ int main()
 
                         if (fileSize > MAX_BUFFER_SIZE)
                         {
-                            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+                            ImGui::TextColored({1, 0, 0, 1}, // RGBA Red color
                                                "File too large! Maximum size: %d MB",
                                                MAX_BUFFER_SIZE / (1024 * 1024));
                         }
