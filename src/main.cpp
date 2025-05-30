@@ -226,7 +226,7 @@ int main()
             if (find(supported_file_types.begin(), supported_file_types.end(),
                      selected_file.extension()) != supported_file_types.end())
             {
-                if (!file_loaded) // Load file only once when selected
+                if (!file_loaded) 
 
                 {
                     ifstream file(selected_file, ios::in | ios::binary);
