@@ -147,7 +147,7 @@ int main()
 
             if (file_browser.HasSelected())
             {
-                open = false;                               // Close the file browser first
+                open = false;                              
                 file_browser.ClearSelected();               // Clear selection for next use
                 current_path = file_browser.GetDirectory(); // Update current path to selected directory
                 file_browser.Close();
@@ -215,7 +215,7 @@ int main()
         if (selected_file != fs::path())
         {
             string file_name = selected_file.filename().string();
-            float side_menu_width = ImGui::GetWindowWidth(); // Get the current width of side menu
+            float side_menu_width = ImGui::GetWindowWidth();
 
             ImGui::SetNextWindowPos(ImVec2(210, ImGui::GetFrameHeight()), ImGuiCond_Always);
             ImGui::SetNextWindowSize(ImVec2(static_cast<float>(GetScreenWidth() - side_menu_width),
@@ -226,8 +226,7 @@ int main()
             if (find(supported_file_types.begin(), supported_file_types.end(),
                      selected_file.extension()) != supported_file_types.end())
             {
-                if (!file_loaded) // Load file only once when selected
-
+                if (!file_loaded)
                 {
                     ifstream file(selected_file, ios::in | ios::binary);
                     if (file.is_open())
@@ -254,7 +253,6 @@ int main()
 
                 if (file_loaded)
                 {
-                    // Display editor with save capability
                     ImGui::InputTextMultiline("##multiline", &file_content[0], file_content.capacity(), ImVec2(-1, -1));
                 }
             }
@@ -266,7 +264,7 @@ int main()
         }
         else
         {
-            file_loaded = false; // Reset when no file is selected
+            file_loaded = false;
         }
 
         ImGui::End();
