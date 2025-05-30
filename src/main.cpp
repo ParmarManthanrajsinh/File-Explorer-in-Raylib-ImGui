@@ -111,6 +111,15 @@ int main()
             {
                 if (ImGui::MenuItem("new"))
                 {
+                    string new_dir_name = "New Folder";
+                    fs::path new_dir_path = current_path / new_dir_name;
+                    size_t counter = 1;
+                    while (fs::exists(new_dir_path))
+                    {
+                        new_dir_name = "New Folder (" + to_string(counter++) + ")";
+                        new_dir_path = current_path / new_dir_name;
+                    }
+                    fs::create_directory(new_dir_path);
                 }
                 if (ImGui::MenuItem("rename"))
                 {
