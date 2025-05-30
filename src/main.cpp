@@ -22,7 +22,7 @@ using namespace std;
 string format_size(uintmax_t size_in_bytes)
 {
     const char *units[] = {"B", "KB", "MB", "GB", "TB"};
-    int unit_index = 0;
+    size_t unit_index = 0;
     double size = static_cast<double>(size_in_bytes);
 
     while (size >= 1024 && unit_index < 4)
@@ -41,7 +41,7 @@ map<string, string> get_files_in_directory(const fs::path &path)
     map<string, string> files;
     if (fs::exists(path) && fs::is_directory(path))
     {
-        for (const fs::directory_entry &entry : fs::directory_iterator(path))
+        for (const auto &entry : fs::directory_iterator(path))
         {
             if (entry.is_regular_file())
             {
@@ -61,13 +61,11 @@ map<string, string> get_files_in_directory(const fs::path &path)
 
 int main()
 {
-    // Initialization
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE); // Enable window resizing
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(900, 500, "File Explorer");
     SetTargetFPS(60);
 
-    // Initialize rlImGui
-    rlImGuiSetup(true); // true = auto load fonts
+    rlImGuiSetup(true);
 
     // Initialize File Browser
     ImGui::FileBrowser file_browser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
@@ -85,19 +83,13 @@ int main()
         ".rb", ".go", ".swift", ".ts", ".tsx", ".vue", ".sql", ".pl", ".lua",
         ".r", ".dart", ".scala", ".rs", ".java", ".kt"};
 
-    // Main game loop
     while (!WindowShouldClose())
     {
-        // Start Drawing
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // Start ImGui frame
         rlImGuiBegin();
 
-        /* ImGui Code */
-
-        // Flag to control file explorer
         static bool open = false;
         static bool save = false;
 
@@ -125,6 +117,15 @@ int main()
             {
                 if (ImGui::MenuItem("new"))
                 {
+                    string new_dir_name = "New Folder";
+                    fs::path new_dir_path = current_path / new_dir_name;
+                    size_t counter = 1;
+                    while (fs::exists(new_dir_path))
+                    {
+                        new_dir_name = "New Folder (" + to_string(counter++) + ")";
+                        new_dir_path = current_path / new_dir_name;
+                    }
+                    fs::create_directory(new_dir_path);
                 }
                 if (ImGui::MenuItem("rename"))
                 {
@@ -148,10 +149,10 @@ int main()
 
             if (file_browser.HasSelected())
             {
+                open = false;                               // Close the file browser first
                 file_browser.ClearSelected();               // Clear selection for next use
                 current_path = file_browser.GetDirectory(); // Update current path to selected directory
-                open = false;                               // Close the file browser after selection
-                file_browser.Close();                       // Close the file browser
+                file_browser.Close();
             }
         }
 
@@ -179,7 +180,7 @@ int main()
         ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 
         // Display current Folder Name
-        ImGui::Text("%s", current_path.filename().string().c_str());
+        ImGui::TextWrapped("%s", current_path.filename().string().c_str());
 
         // Add "Back" button
         if (ImGui::Selectable("..") && current_path.has_parent_path())
@@ -228,6 +229,7 @@ int main()
                      selected_file.extension()) != supported_file_types.end())
             {
                 if (!file_loaded) // Load file only once when selected
+
                 {
                     ifstream file(selected_file, ios::in | ios::binary);
                     if (file.is_open())
@@ -260,7 +262,7 @@ int main()
             }
             else
             {
-                ImGui::Text("File type not supported for editing.");
+                ImGui::TextColored({1, 0, 0, 1}, "Unsupported file format for preview"); // RGBA Red color
             }
             ImGui::End();
         }
@@ -270,15 +272,10 @@ int main()
         }
 
         ImGui::End();
-
-        /* End ImGui Frame */
-
         rlImGuiEnd();
-
         EndDrawing();
     }
 
-    // Cleanup
     rlImGuiShutdown();
     CloseWindow();
     return 0;
