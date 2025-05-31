@@ -126,6 +126,8 @@ int main()
 
 		static bool open = false;
 		static bool save = false;
+		static bool create_new_folder = false;
+		static bool create_new_file = false;
 
 		ImGui::GetStyle().FramePadding.y = 6.0f;
 
@@ -154,11 +156,19 @@ int main()
 			{
 				if (ImGui::MenuItem("New Folder"))
 				{
-					// TODO: Implement new folder functionality
+					create_new_folder = true;
+				}
+				if (ImGui::MenuItem("New File"))
+				{
+					create_new_file = true;
 				}
 				if (ImGui::MenuItem("Rename", nullptr, false, false))
 				{
 					// TODO: Implement rename functionality
+				}
+				if (ImGui::MenuItem("Delete", nullptr, false, false))
+				{
+					// TODO: Implement Selected file deletion functionality
 				}
 				ImGui::EndMenu();
 			}
@@ -249,6 +259,93 @@ int main()
 			}
 			ImGui::EndPopup();
 		}
+
+		// New Folder Popup
+		if (create_new_folder)
+		{
+			ImGui::OpenPopup("Enter Folder Name");
+			create_new_folder = false;
+		}
+
+		if (ImGui::BeginPopupModal("Enter Folder Name", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			static char folder_name[128] = "";
+			ImGui::InputText("Folder Name", folder_name, sizeof(folder_name));
+			if (ImGui::Button("Create"))
+			{
+				fs::path new_folder_path = current_path / folder_name;
+				if (!fs::exists(new_folder_path))
+				{
+					fs::create_directory(new_folder_path);
+					current_path = new_folder_path; // Change to the new folder
+					selected_file = fs::path(); // Reset selected file
+					file_loaded = false;
+					file_modified = false;
+					file_content.clear();
+				}
+				else
+				{
+					error_message = "Folder already exists!";
+					show_error_popup = true;
+				}
+				folder_name[0] = '\0';
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		// New File Popup
+		if (create_new_file)
+		{
+			ImGui::OpenPopup("Enter File Name");
+			create_new_file = false;
+		}
+
+		if (ImGui::BeginPopupModal("Enter File Name", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			static char new_file_name[128] = "";
+			ImGui::InputText("File Name", new_file_name, sizeof(new_file_name));
+
+			if (ImGui::Button("Create"))
+			{
+				fs::path new_file_path = current_path / new_file_name;
+				if (!fs::exists(new_file_path)) {
+					ofstream file(new_file_path);
+					if (file.is_open())
+					{
+						file.close();
+						selected_file = new_file_path;
+						file_loaded = false;
+						file_modified = false;
+						file_content.clear();
+					}
+					else
+					{
+						error_message = "Could not create file: " + new_file_path.string();
+						show_error_popup = true;
+					}
+				}
+				else {
+					error_message = "File already exists!";
+					show_error_popup = true;
+				}
+				new_file_name[0] = '\0';
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+
 
 		// Explorer Side Panel (Resizable)
 		ImGui::SetNextWindowPos(ImVec2(0, menu_bar_height), ImGuiCond_Always);
