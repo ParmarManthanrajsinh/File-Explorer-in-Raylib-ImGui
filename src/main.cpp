@@ -156,11 +156,11 @@ int main()
 			}
 			if (ImGui::BeginMenu("Edit"))
 			{
-				if (ImGui::MenuItem("New Folder"))
+				if (ImGui::MenuItem("New Folder", "Ctrl+Shift+N"))
 				{
 					create_new_folder = true;
 				}
-				if (ImGui::MenuItem("New File"))
+				if (ImGui::MenuItem("New File", "Ctrl+N"))
 				{
 					create_new_file = true;
 				}
@@ -192,6 +192,18 @@ int main()
 		if (ImGui::IsKeyPressed(ImGuiKey_S) && ImGui::GetIO().KeyCtrl && selected_file != fs::path() && file_loaded)
 		{
 			save = true;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_N) && ImGui::GetIO().KeyCtrl && !ImGui::GetIO().KeyShift)
+		{
+			create_new_file = true;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_N) && ImGui::GetIO().KeyCtrl && ImGui::GetIO().KeyShift)
+		{
+			create_new_folder = true;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_F2) && selected_file != fs::path() && file_loaded)
+		{
+			rename_file = true;
 		}
 
 		// File Browser Dialog
@@ -265,11 +277,11 @@ int main()
 		// New Folder Popup
 		if (create_new_folder)
 		{
-			ImGui::OpenPopup("Enter Folder Name");
+			ImGui::OpenPopup("Create Folder");
 			create_new_folder = false;
 		}
 
-		if (ImGui::BeginPopupModal("Enter Folder Name", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Create Folder", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			static char folder_name[128] = "";
 			ImGui::InputText("Folder Name", folder_name, sizeof(folder_name));
@@ -304,11 +316,11 @@ int main()
 		// New File Popup
 		if (create_new_file)
 		{
-			ImGui::OpenPopup("Enter File Name");
+			ImGui::OpenPopup("Create File");
 			create_new_file = false;
 		}
 
-		if (ImGui::BeginPopupModal("Enter File Name", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Create File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			static char new_file_name[128] = "";
 			ImGui::InputText("File Name", new_file_name, sizeof(new_file_name));
