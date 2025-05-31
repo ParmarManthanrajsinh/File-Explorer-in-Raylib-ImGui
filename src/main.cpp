@@ -86,6 +86,7 @@ int main()
 	style.Colors[ImGuiCol_FrameBg] = ImColor(0.1f, 0.1f, 0.1f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgHovered] = ImColor(0.2f, 0.2f, 0.2f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgActive] = ImColor(0.3f, 0.3f, 0.3f, 1.0f);
+	style.WindowRounding = 5.0f;
 
 	// Initialize File Browser
 	ImGui::FileBrowser file_browser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
@@ -128,6 +129,7 @@ int main()
 		static bool save = false;
 		static bool create_new_folder = false;
 		static bool create_new_file = false;
+		static bool rename_file = false;
 
 		ImGui::GetStyle().FramePadding.y = 6.0f;
 
@@ -162,9 +164,9 @@ int main()
 				{
 					create_new_file = true;
 				}
-				if (ImGui::MenuItem("Rename", nullptr, false, false))
+				if (ImGui::MenuItem("Rename", "F2", false, selected_file != fs::path() && file_loaded))
 				{
-					// TODO: Implement rename functionality
+					rename_file = true;
 				}
 				if (ImGui::MenuItem("Delete", nullptr, false, false))
 				{
@@ -343,6 +345,67 @@ int main()
 				ImGui::CloseCurrentPopup();
 			}
 
+			ImGui::EndPopup();
+		}
+
+		// Rename File Popup
+		if (rename_file)
+		{
+			ImGui::OpenPopup("Rename File");
+			rename_file = false;
+		}
+
+		if (ImGui::BeginPopupModal("Rename File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			static char new_name[128] = "";
+			static bool first_frame = true;
+
+			// Initialize the input field with current filename when popup first opens
+			if (first_frame)
+			{
+				strncpy(new_name, selected_file.filename().string().c_str(), sizeof(new_name) - 1);
+				new_name[sizeof(new_name) - 1] = '\0';
+				first_frame = false;
+			}
+            
+			ImGui::InputText("New Name", new_name, sizeof(new_name));
+
+			if (ImGui::Button("Rename"))
+			{
+				if (!selected_file.empty())
+				{
+					fs::path new_file_path = selected_file.parent_path() / new_name;
+					if (!fs::exists(new_file_path))
+					{
+						try
+						{
+							fs::rename(selected_file, new_file_path);
+							selected_file = new_file_path; // Update selected file path
+							file_loaded = false;
+							file_modified = false;
+							file_content.clear();
+						}
+						catch (const fs::filesystem_error& ex)
+						{
+							error_message = "Error renaming file: " + string(ex.what());
+							show_error_popup = true;
+						}
+					}
+					else
+					{
+						error_message = "File already exists!";
+						show_error_popup = true;
+					}
+				}
+				new_name[0] = '\0';
+				ImGui::CloseCurrentPopup();
+			}
+			
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
 			ImGui::EndPopup();
 		}
 
