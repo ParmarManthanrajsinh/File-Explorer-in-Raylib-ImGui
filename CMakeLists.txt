@@ -36,8 +36,8 @@ set(IMGUI_SRC
 )
 
 # Copy assets to the build directory
-if(EXISTS "${CMAKE_SOURCE_DIR}/src/assets")
-    file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR})
+if(EXISTS "${CMAKE_SOURCE_DIR}/assets")
+    file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
 # Create executable
