@@ -125,9 +125,16 @@ int main()
 		// Main Menu Bar
 		if (ImGui::BeginMainMenuBar())
 		{
+			// Special case when user press ctrl + O
+			if(ImGui::IsKeyPressed(ImGuiKey_O) && ImGui::GetIO().KeyCtrl)
+			{
+				open = true;
+				file_browser.Open();
+			}
+			
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Open Directory"))
+				if (ImGui::MenuItem("Open Directory", "Ctrl+O"))
 				{
 					open = true;
 					file_browser.Open();
@@ -281,7 +288,7 @@ int main()
 				{
 					fs::create_directory(new_folder_path);
 					current_path = new_folder_path; // Change to the new folder
-					selected_file = fs::path(); // Reset selected file
+					selected_file = fs::path();		// Reset selected file
 					file_loaded = false;
 					file_modified = false;
 					file_content.clear();
@@ -317,7 +324,8 @@ int main()
 			if (ImGui::Button("Create"))
 			{
 				fs::path new_file_path = current_path / new_file_name;
-				if (!fs::exists(new_file_path)) {
+				if (!fs::exists(new_file_path))
+				{
 					ofstream file(new_file_path);
 					if (file.is_open())
 					{
@@ -333,7 +341,8 @@ int main()
 						show_error_popup = true;
 					}
 				}
-				else {
+				else
+				{
 					error_message = "File already exists!";
 					show_error_popup = true;
 				}
@@ -428,7 +437,7 @@ int main()
 							file_modified = false;
 							file_content.clear();
 						}
-						catch (const fs::filesystem_error& ex)
+						catch (const fs::filesystem_error &ex)
 						{
 							error_message = string("Error renaming ") + (is_dir ? "folder" : "file") + ": " + ex.what();
 							show_error_popup = true;
@@ -443,7 +452,7 @@ int main()
 
 				// Reset for next use and close popup
 				memset(new_name, 0, sizeof(new_name));
-				first_frame = true;  // FIXED: Reset first_frame for next popup opening
+				first_frame = true; // FIXED: Reset first_frame for next popup opening
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -452,13 +461,12 @@ int main()
 			{
 				// Reset for next use and close popup
 				memset(new_name, 0, sizeof(new_name));
-				first_frame = true;  // FIXED: Reset first_frame for next popup opening
+				first_frame = true; // FIXED: Reset first_frame for next popup opening
 				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();
 		}
-
 
 		// Explorer Side Panel (Resizable)
 		ImGui::SetNextWindowPos(ImVec2(0, menu_bar_height), ImGuiCond_Always);
