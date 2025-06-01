@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 
 string format_size(uintmax_t size_in_bytes)
 {
-	const char *units[] = {"B", "KB", "MB", "GB", "TB"};
+	const char* units[] = { "B", "KB", "MB", "GB", "TB" };
 	uint8_t unit_index = 0;
 	double size = static_cast<double>(size_in_bytes);
 
@@ -33,12 +33,12 @@ string format_size(uintmax_t size_in_bytes)
 	return out.str();
 }
 
-map<string, string> get_files_in_directory(const fs::path &path)
+map<string, string> get_files_in_directory(const fs::path& path)
 {
 	map<string, string> files;
 	if (fs::exists(path) && fs::is_directory(path))
 	{
-		for (const auto &entry : fs::directory_iterator(path))
+		for (const auto& entry : fs::directory_iterator(path))
 		{
 			if (entry.is_regular_file())
 			{
@@ -65,13 +65,19 @@ int main()
 	rlImGuiSetup(true);
 
 	// Load a font
-	ImGuiIO &io = ImGui::GetIO();
+	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->Clear();
-	io.Fonts->AddFontFromFileTTF("assets/Roboto-Regular.ttf", 20.0f);
+	io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 20.0f);
 	rlImGuiReloadFonts();
 
+	// Load Icon 
+	Texture2D file_icon = LoadTexture("assets/icons/file.png");
+	Texture2D folder_icon = LoadTexture("assets/icons/folder.png");
+	Texture2D img_icon = LoadTexture("assets/icons/image.png");
+	Texture2D edit_file_icon = LoadTexture("assets/icons/edit_file.png");
+
 	// Custom theme
-	ImGuiStyle &style = ImGui::GetStyle();
+	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_FrameBg] = ImColor(0.22f, 0.22f, 0.22f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgHovered] = ImColor(0.2f, 0.2f, 0.2f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgActive] = ImColor(0.3f, 0.3f, 0.3f, 1.0f);
@@ -79,7 +85,7 @@ int main()
 
 	// Initialize File Browser
 	ImGui::FileBrowser file_browser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
-									ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoStatusBar);
+		ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoStatusBar);
 
 	static fs::path current_path = fs::current_path(); // Start with the current working directory
 	static fs::path selected_file = fs::path();		   // To store the selected file path
@@ -88,7 +94,7 @@ int main()
 	static bool file_modified = false;				   // Track if file has been modified
 
 	// Image handling variables
-	static Texture2D img_texture = {0};			  // Initialize to empty texture
+	static Texture2D img_texture = { 0 };			  // Initialize to empty texture
 	static bool img_loaded = false;				  // Track if image is loaded
 	static fs::path loaded_img_path = fs::path(); // Track which image is currently loaded
 
@@ -102,10 +108,10 @@ int main()
 		".txt", ".cpp", ".h", ".hpp", ".c", ".py", ".js", ".html", ".css",
 		".json", ".md", ".xml", ".yaml", ".ini", ".log", ".bat", ".sh", ".php",
 		".rb", ".go", ".swift", ".ts", ".tsx", ".vue", ".sql", ".pl", ".lua",
-		".r", ".dart", ".scala", ".rs", ".java", ".kt"};
+		".r", ".dart", ".scala", ".rs", ".java", ".kt" };
 
 	array<string, 3> supported_img_types = {
-		".jpg", ".png", ".bmp"};
+		".jpg", ".png", ".bmp" };
 
 	while (!WindowShouldClose())
 	{
@@ -438,7 +444,7 @@ int main()
 							file_modified = false;
 							file_content.clear();
 						}
-						catch (const fs::filesystem_error &ex)
+						catch (const fs::filesystem_error& ex)
 						{
 							error_message = string("Error renaming ") + (is_dir ? "folder" : "file") + ": " + ex.what();
 							show_error_popup = true;
@@ -572,7 +578,7 @@ int main()
 		vector<pair<string, string>> directories;
 		vector<pair<string, string>> regular_files;
 
-		for (const auto &file : files)
+		for (const auto& file : files)
 		{
 			if (file.second == "[D]")
 				directories.emplace_back(file);
@@ -584,11 +590,23 @@ int main()
 		if (!directories.empty())
 		{
 			ImGui::TextColored(ImVec4(0.7f, 0.7f, 5.0f, 1.0f), "Directories:");
-			for (const auto &dir : directories)
+			for (const auto& dir : directories)
 			{
-				string label = "[D] " + dir.first;
+				string label = dir.first;
 				bool is_selected = (selected_file == current_path / dir.first);
 
+
+				// Start a group to keep icon and text together
+				ImGui::BeginGroup();
+
+				// Draw the icon first
+				rlImGuiImage(&folder_icon);
+				ImGui::SameLine();
+
+				ImVec2 cursor_pos = ImGui::GetCursorPos();
+				ImGui::SetCursorPos(ImVec2(cursor_pos.x, cursor_pos.y + 6.0f));
+
+				// Then draw the selectable
 				if (ImGui::Selectable(label.c_str(), is_selected))
 				{
 					current_path /= dir.first;
@@ -604,22 +622,21 @@ int main()
 					file_modified = false;
 					file_content.clear();
 				}
-			}
 
-			if (!regular_files.empty())
-				ImGui::Separator();
+				ImGui::EndGroup();
+			}
 		}
 
 		// Display files
 		if (!regular_files.empty())
 		{
 			ImGui::TextColored(ImVec4(0.7f, 1.0f, 0.7f, 1.0f), "Files:");
-			for (const auto &file : regular_files)
+			for (const auto& file : regular_files)
 			{
 				fs::path file_path = current_path / file.first;
 				bool is_selected = (selected_file == file_path);
 
-				string icon = "../assets/Icons/Folder_2.png";
+				string icon = "[F]";
 				string ext = fs::path(file.first).extension().string();
 				if (find(supported_img_types.begin(), supported_img_types.end(), ext) != supported_img_types.end())
 					icon = "[I]";
@@ -675,8 +692,8 @@ int main()
 
 			ImGui::SetNextWindowPos(ImVec2(side_menu_width + 5, menu_bar_height), ImGuiCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(static_cast<float>(GetScreenWidth() - side_menu_width - 5),
-											static_cast<float>(GetScreenHeight() - menu_bar_height)),
-									 ImGuiCond_Always);
+				static_cast<float>(GetScreenHeight() - menu_bar_height)),
+				ImGuiCond_Always);
 			ImGui::Begin(window_title.c_str(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
 			// File info header
@@ -739,7 +756,7 @@ int main()
 					}
 
 					if (ImGui::InputTextMultiline("##editor", &edit_buffer[0], edit_buffer.capacity(),
-												  ImVec2(-1, -1), ImGuiInputTextFlags_AllowTabInput))
+						ImVec2(-1, -1), ImGuiInputTextFlags_AllowTabInput))
 					{
 						file_content = edit_buffer.c_str(); // Update content
 						file_modified = true;
