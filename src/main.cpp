@@ -164,7 +164,7 @@ int main()
 				{
 					create_new_file = true;
 				}
-				if (ImGui::MenuItem("Rename", "F2", false, selected_file != fs::path() && file_loaded))
+				if (ImGui::MenuItem("Rename", "F2", false))
 				{
 					rename_file = true;
 				}
@@ -201,7 +201,7 @@ int main()
 		{
 			create_new_folder = true;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_F2) && selected_file != fs::path() && file_loaded)
+		if (ImGui::IsKeyPressed(ImGuiKey_F2))
 		{
 			rename_file = true;
 		}
@@ -363,61 +363,110 @@ int main()
 		// Rename File Popup
 		if (rename_file)
 		{
-			ImGui::OpenPopup("Rename File");
+			ImGui::OpenPopup("Rename");
 			rename_file = false;
 		}
 
-		if (ImGui::BeginPopupModal("Rename File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Rename", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			static char new_name[128] = "";
 			static bool first_frame = true;
 
+			bool renaming_selected_file = !selected_file.empty() && fs::exists(selected_file);
+			bool is_dir = renaming_selected_file ? fs::is_directory(selected_file) : fs::is_directory(current_path);
+
 			// Initialize the input field with current filename when popup first opens
 			if (first_frame)
 			{
-				strncpy(new_name, selected_file.filename().string().c_str(), sizeof(new_name) - 1);
+				if (renaming_selected_file)
+				{
+					// Renaming the selected file/folder
+					strncpy(new_name, selected_file.filename().string().c_str(), sizeof(new_name) - 1);
+				}
+				else
+				{
+					// Renaming the current directory
+					strncpy(new_name, current_path.filename().string().c_str(), sizeof(new_name) - 1);
+				}
 				new_name[sizeof(new_name) - 1] = '\0';
 				first_frame = false;
 			}
-            
-			ImGui::InputText("New Name", new_name, sizeof(new_name));
+
+			ImGui::InputText(is_dir ? "New Folder Name" : "New File Name", new_name, sizeof(new_name));
 
 			if (ImGui::Button("Rename"))
 			{
-				if (!selected_file.empty())
+				// Validate input
+				if (strlen(new_name) == 0)
 				{
-					fs::path new_file_path = selected_file.parent_path() / new_name;
-					if (!fs::exists(new_file_path))
+					error_message = "Name cannot be empty!";
+					show_error_popup = true;
+				}
+				else
+				{
+					fs::path source_path, new_path;
+
+					if (renaming_selected_file)
+					{
+						source_path = selected_file;
+						new_path = selected_file.parent_path() / new_name;
+					}
+					else
+					{
+						source_path = current_path;
+						new_path = current_path.parent_path() / new_name;
+					}
+
+					if (!fs::exists(new_path))
 					{
 						try
 						{
-							fs::rename(selected_file, new_file_path);
-							selected_file = new_file_path; // Update selected file path
+							fs::rename(source_path, new_path);
+
+							// Update paths after successful rename
+							if (renaming_selected_file)
+							{
+								selected_file = new_path;
+							}
+							else
+							{
+								current_path = new_path;
+								selected_file = fs::path(); // Reset selected file
+							}
+
+							// Reset file state
 							file_loaded = false;
 							file_modified = false;
 							file_content.clear();
 						}
 						catch (const fs::filesystem_error& ex)
 						{
-							error_message = "Error renaming file: " + string(ex.what());
+							error_message = string("Error renaming ") + (is_dir ? "folder" : "file") + ": " + ex.what();
 							show_error_popup = true;
 						}
 					}
 					else
 					{
-						error_message = "File already exists!";
+						error_message = string(is_dir ? "Folder" : "File") + " already exists!";
 						show_error_popup = true;
 					}
 				}
-				new_name[0] = '\0';
+
+				// Reset for next use and close popup
+				memset(new_name, 0, sizeof(new_name));
+				first_frame = true;  // FIXED: Reset first_frame for next popup opening
 				ImGui::CloseCurrentPopup();
 			}
-			
+
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel"))
 			{
+				// Reset for next use and close popup
+				memset(new_name, 0, sizeof(new_name));
+				first_frame = true;  // FIXED: Reset first_frame for next popup opening
 				ImGui::CloseCurrentPopup();
 			}
+
 			ImGui::EndPopup();
 		}
 
