@@ -562,7 +562,7 @@ int main()
 				fs::path file_path = current_path / file.first;
 				bool is_selected = (selected_file == file_path);
 
-				string icon = "../assets/Icons/Folder_2.png";
+				string icon = "[F]";
 				string ext = fs::path(file.first).extension().string();
 				if (find(supported_img_types.begin(), supported_img_types.end(), ext) != supported_img_types.end())
 					icon = "[I]";
