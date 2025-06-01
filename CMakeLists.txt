@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.27)
 project(FileExplorer)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -50,7 +50,6 @@ target_include_directories(main PRIVATE
     ${CMAKE_SOURCE_DIR}/rlImGui
     ${CMAKE_SOURCE_DIR}/src # <-- This is what includes your .h/.hpp headers!
 )
-
 
 # Link libraries
 target_link_libraries(main raylib)
