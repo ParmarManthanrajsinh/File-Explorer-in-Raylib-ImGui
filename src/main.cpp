@@ -39,27 +39,19 @@ map<string, string> get_files_in_directory(const fs::path &path)
 	map<string, string> files;
 	if (fs::exists(path) && fs::is_directory(path))
 	{
-		try
+		for (const auto &entry : fs::directory_iterator(path))
 		{
-			for (const auto &entry : fs::directory_iterator(path))
+			if (entry.is_regular_file())
 			{
-				if (entry.is_regular_file())
-				{
-					string filename = entry.path().filename().string();
-					string size_str = format_size(entry.file_size());
-					files.emplace(filename, size_str);
-				}
-				else if (entry.is_directory())
-				{
-					string dirname = entry.path().filename().string();
-					files.emplace(dirname, "[D]");
-				}
+				string filename = entry.path().filename().string();
+				string size_str = format_size(entry.file_size());
+				files.emplace(filename, size_str);
 			}
-		}
-		catch (const fs::filesystem_error &ex)
-		{
-			// Handle permission errors or other filesystem issues
-			// cout << "Error accessing directory: " << ex.what() << endl;
+			else if (entry.is_directory())
+			{
+				string dirname = entry.path().filename().string();
+				files.emplace(dirname, "[D]");
+			}
 		}
 	}
 	return files;
@@ -342,7 +334,7 @@ int main()
 				fs::path file_path = current_path / file.first;
 				bool is_selected = (selected_file == file_path);
 
-				string icon = "[F]";
+				string icon = "../assets/Icons/Folder_2.png";
 				string ext = fs::path(file.first).extension().string();
 				if (find(supported_img_types.begin(), supported_img_types.end(), ext) != supported_img_types.end())
 					icon = "[I]";
