@@ -119,6 +119,7 @@ int main()
 		static bool create_new_folder = false;
 		static bool create_new_file = false;
 		static bool rename_file = false;
+		static bool _delete = false;
 
 		ImGui::GetStyle().FramePadding.y = 6.0f;
 
@@ -164,9 +165,9 @@ int main()
 				{
 					rename_file = true;
 				}
-				if (ImGui::MenuItem("Delete", nullptr, false, false))
+				if (ImGui::MenuItem("Delete"))
 				{
-					// TODO: Implement Selected file deletion functionality
+					_delete = true;
 				}
 				ImGui::EndMenu();
 			}
@@ -465,6 +466,62 @@ int main()
 				ImGui::CloseCurrentPopup();
 			}
 
+			ImGui::EndPopup();
+		}
+
+		// Delete File and Folder Popup
+		if (_delete) {
+			ImGui::OpenPopup("Delete");
+			_delete = false;
+		}
+
+		if (ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			bool renaming_selected_file = !selected_file.empty() && fs::exists(selected_file);
+			bool is_dir = renaming_selected_file ? fs::is_directory(selected_file) : fs::is_directory(current_path);
+
+			if (renaming_selected_file)
+			{
+				ImGui::Text("Are you sure you want to delete '%s'?", selected_file.filename().string().c_str());
+			}
+			else
+			{
+				ImGui::Text("Are you sure you want to delete the current directory '%s'?", current_path.filename().string().c_str());
+			}
+
+			// Show confirmation buttons
+			if (ImGui::Button("Delete", ImVec2(120, 0)))
+			{
+				try
+				{
+					if (renaming_selected_file)
+					{
+						fs::remove_all(selected_file);
+						selected_file = fs::path();
+					}
+					else
+					{
+						fs::remove_all(current_path);
+						current_path = fs::current_path();
+						selected_file = fs::path();
+					}
+					file_loaded = false;
+					file_modified = false;
+					file_content.clear();
+				}
+				catch (const fs::filesystem_error& ex)
+				{
+					error_message = "Error deleting file/folder: " + string(ex.what());
+					show_error_popup = true;
+				}
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
 			ImGui::EndPopup();
 		}
 
