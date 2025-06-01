@@ -12,7 +12,7 @@
 #include <fstream>
 #include <array>
 
-#define MAX_BUFFER_SIZE (5 * 1024 * 1024) // 5MB buffer
+#define MAX_BUFFER_SIZE ((int)5 * (int)1024 * (int)1024) // 5MB buffer
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -20,7 +20,7 @@ using namespace std;
 string format_size(uintmax_t size_in_bytes)
 {
 	const char *units[] = {"B", "KB", "MB", "GB", "TB"};
-	size_t unit_index = 0;
+	uint8_t unit_index = 0;
 	double size = static_cast<double>(size_in_bytes);
 
 	while (size >= 1024 && unit_index < 4)
