@@ -126,15 +126,15 @@ int main()
 		if (ImGui::BeginMainMenuBar())
 		{
 			// Special case when user press ctrl + O
-			if(ImGui::IsKeyPressed(ImGuiKey_O) && ImGui::GetIO().KeyCtrl)
+			if (ImGui::IsKeyPressed(ImGuiKey_O) && ImGui::GetIO().KeyCtrl)
 			{
 				open = true;
 				file_browser.Open();
 			}
-			
+
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Open Directory", "Ctrl+O"))
+				if (ImGui::MenuItem("Open Directory", "Ctrl+O", false))
 				{
 					open = true;
 					file_browser.Open();
@@ -144,7 +144,7 @@ int main()
 					save = true;
 				}
 				ImGui::Separator();
-				if (ImGui::MenuItem("Exit"))
+				if (ImGui::MenuItem("Exit", "Escape"))
 				{
 					break;
 				}
