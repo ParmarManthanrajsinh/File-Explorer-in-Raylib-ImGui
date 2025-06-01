@@ -76,6 +76,7 @@ int main()
 	style.Colors[ImGuiCol_FrameBg] = ImColor(0.1f, 0.1f, 0.1f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgHovered] = ImColor(0.2f, 0.2f, 0.2f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgActive] = ImColor(0.3f, 0.3f, 0.3f, 1.0f);
+	style.WindowRounding = 5.0f;
 
 	// Initialize File Browser
 	ImGui::FileBrowser file_browser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
@@ -116,6 +117,9 @@ int main()
 
 		static bool open = false;
 		static bool save = false;
+		static bool create_new_folder = false;
+		static bool create_new_file = false;
+		static bool rename_file = false;
 
 		ImGui::GetStyle().FramePadding.y = 6.0f;
 
@@ -142,13 +146,21 @@ int main()
 			}
 			if (ImGui::BeginMenu("Edit"))
 			{
-				if (ImGui::MenuItem("New Folder"))
+				if (ImGui::MenuItem("New Folder", "Ctrl+Shift+N"))
 				{
-					// TODO: Implement new folder functionality
+					create_new_folder = true;
 				}
-				if (ImGui::MenuItem("Rename", nullptr, false, false))
+				if (ImGui::MenuItem("New File", "Ctrl+N"))
 				{
-					// TODO: Implement rename functionality
+					create_new_file = true;
+				}
+				if (ImGui::MenuItem("Rename", "F2", false))
+				{
+					rename_file = true;
+				}
+				if (ImGui::MenuItem("Delete", nullptr, false, false))
+				{
+					// TODO: Implement Selected file deletion functionality
 				}
 				ImGui::EndMenu();
 			}
@@ -170,6 +182,18 @@ int main()
 		if (ImGui::IsKeyPressed(ImGuiKey_S) && ImGui::GetIO().KeyCtrl && selected_file != fs::path() && file_loaded)
 		{
 			save = true;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_N) && ImGui::GetIO().KeyCtrl && !ImGui::GetIO().KeyShift)
+		{
+			create_new_file = true;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_N) && ImGui::GetIO().KeyCtrl && ImGui::GetIO().KeyShift)
+		{
+			create_new_folder = true;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_F2))
+		{
+			rename_file = true;
 		}
 
 		// File Browser Dialog
@@ -239,6 +263,203 @@ int main()
 			}
 			ImGui::EndPopup();
 		}
+
+		// New Folder Popup
+		if (create_new_folder)
+		{
+			ImGui::OpenPopup("Create Folder");
+			create_new_folder = false;
+		}
+
+		if (ImGui::BeginPopupModal("Create Folder", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			static char folder_name[128] = "";
+			ImGui::InputText("Folder Name", folder_name, sizeof(folder_name));
+			if (ImGui::Button("Create"))
+			{
+				fs::path new_folder_path = current_path / folder_name;
+				if (!fs::exists(new_folder_path))
+				{
+					fs::create_directory(new_folder_path);
+					current_path = new_folder_path; // Change to the new folder
+					selected_file = fs::path(); // Reset selected file
+					file_loaded = false;
+					file_modified = false;
+					file_content.clear();
+				}
+				else
+				{
+					error_message = "Folder already exists!";
+					show_error_popup = true;
+				}
+				folder_name[0] = '\0';
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		// New File Popup
+		if (create_new_file)
+		{
+			ImGui::OpenPopup("Create File");
+			create_new_file = false;
+		}
+
+		if (ImGui::BeginPopupModal("Create File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			static char new_file_name[128] = "";
+			ImGui::InputText("File Name", new_file_name, sizeof(new_file_name));
+
+			if (ImGui::Button("Create"))
+			{
+				fs::path new_file_path = current_path / new_file_name;
+				if (!fs::exists(new_file_path)) {
+					ofstream file(new_file_path);
+					if (file.is_open())
+					{
+						file.close();
+						selected_file = new_file_path;
+						file_loaded = false;
+						file_modified = false;
+						file_content.clear();
+					}
+					else
+					{
+						error_message = "Could not create file: " + new_file_path.string();
+						show_error_popup = true;
+					}
+				}
+				else {
+					error_message = "File already exists!";
+					show_error_popup = true;
+				}
+				new_file_name[0] = '\0';
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+
+		// Rename File Popup
+		if (rename_file)
+		{
+			ImGui::OpenPopup("Rename");
+			rename_file = false;
+		}
+
+		if (ImGui::BeginPopupModal("Rename", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			static char new_name[128] = "";
+			static bool first_frame = true;
+
+			bool renaming_selected_file = !selected_file.empty() && fs::exists(selected_file);
+			bool is_dir = renaming_selected_file ? fs::is_directory(selected_file) : fs::is_directory(current_path);
+
+			// Initialize the input field with current filename when popup first opens
+			if (first_frame)
+			{
+				if (renaming_selected_file)
+				{
+					// Renaming the selected file/folder
+					strncpy(new_name, selected_file.filename().string().c_str(), sizeof(new_name) - 1);
+				}
+				else
+				{
+					// Renaming the current directory
+					strncpy(new_name, current_path.filename().string().c_str(), sizeof(new_name) - 1);
+				}
+				new_name[sizeof(new_name) - 1] = '\0';
+				first_frame = false;
+			}
+
+			ImGui::InputText(is_dir ? "New Folder Name" : "New File Name", new_name, sizeof(new_name));
+
+			if (ImGui::Button("Rename"))
+			{
+				// Validate input
+				if (strlen(new_name) == 0)
+				{
+					error_message = "Name cannot be empty!";
+					show_error_popup = true;
+				}
+				else
+				{
+					fs::path source_path, new_path;
+
+					if (renaming_selected_file)
+					{
+						source_path = selected_file;
+						new_path = selected_file.parent_path() / new_name;
+					}
+					else
+					{
+						source_path = current_path;
+						new_path = current_path.parent_path() / new_name;
+					}
+
+					if (!fs::exists(new_path))
+					{
+						try
+						{
+							fs::rename(source_path, new_path);
+
+							// Update paths after successful rename
+							if (renaming_selected_file)
+							{
+								selected_file = new_path;
+							}
+							else
+							{
+								current_path = new_path;
+								selected_file = fs::path(); // Reset selected file
+							}
+
+							// Reset file state
+							file_loaded = false;
+							file_modified = false;
+							file_content.clear();
+						}
+						catch (const fs::filesystem_error& ex)
+						{
+							error_message = string("Error renaming ") + (is_dir ? "folder" : "file") + ": " + ex.what();
+							show_error_popup = true;
+						}
+					}
+					else
+					{
+						error_message = string(is_dir ? "Folder" : "File") + " already exists!";
+						show_error_popup = true;
+					}
+				}
+
+				// Reset for next use and close popup
+				memset(new_name, 0, sizeof(new_name));
+				first_frame = true;  // FIXED: Reset first_frame for next popup opening
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				// Reset for next use and close popup
+				memset(new_name, 0, sizeof(new_name));
+				first_frame = true;  // FIXED: Reset first_frame for next popup opening
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+
 
 		// Explorer Side Panel (Resizable)
 		ImGui::SetNextWindowPos(ImVec2(0, menu_bar_height), ImGuiCond_Always);
