@@ -604,7 +604,7 @@ int main()
 				ImGui::SameLine();
 
 				ImVec2 cursor_pos = ImGui::GetCursorPos();
-				ImGui::SetCursorPos(ImVec2(cursor_pos.x, cursor_pos.y + 6.0f));
+				ImGui::SetCursorPos(ImVec2(cursor_pos.x - 6.0f, cursor_pos.y + 6.0f));
 
 				// Then draw the selectable
 				if (ImGui::Selectable(label.c_str(), is_selected))
@@ -635,16 +635,26 @@ int main()
 			{
 				fs::path file_path = current_path / file.first;
 				bool is_selected = (selected_file == file_path);
-
-				string icon = "[F]";
+				Texture2D icon = file_icon;
 				string ext = fs::path(file.first).extension().string();
 				if (find(supported_img_types.begin(), supported_img_types.end(), ext) != supported_img_types.end())
-					icon = "[I]";
+					icon = img_icon;
 				else if (find(supported_file_types.begin(), supported_file_types.end(), ext) != supported_file_types.end())
-					icon = "[C]";
+					icon = edit_file_icon;
+				string label = file.first + " (" + file.second + ")";
 
-				string label = icon + " " + file.first + " (" + file.second + ")";
+				// Start a group to keep icon and text together
+				ImGui::BeginGroup();
 
+				// Draw the icon first
+				rlImGuiImage(&icon);
+				ImGui::SameLine();
+
+				// Add padding if needed
+				ImVec2 cursor_pos = ImGui::GetCursorPos();
+				ImGui::SetCursorPos(ImVec2(cursor_pos.x - 6.0f, cursor_pos.y + 6.0f));
+
+				// Then draw the selectable
 				if (ImGui::Selectable(label.c_str(), is_selected))
 				{
 					// Only process if it's a different file
@@ -657,13 +667,14 @@ int main()
 							img_loaded = false;
 							loaded_img_path = fs::path();
 						}
-
 						selected_file = file_path;
 						file_loaded = false;
 						file_modified = false;
 						file_content.clear();
 					}
 				}
+
+				ImGui::EndGroup();
 			}
 		}
 
