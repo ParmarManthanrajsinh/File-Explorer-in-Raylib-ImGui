@@ -1,5 +1,4 @@
 ﻿// Raylib and ImGui headers for graphics and GUI
-#include <raylib.h>
 #include <rlImGui.h>
 #include <imgui.h>
 
