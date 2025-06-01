@@ -469,7 +469,8 @@ int main()
 		}
 
 		// Delete File and Folder Popup
-		if (_delete) {
+		if (_delete)
+		{
 			ImGui::OpenPopup("Delete");
 			_delete = false;
 		}
@@ -508,7 +509,7 @@ int main()
 					file_modified = false;
 					file_content.clear();
 				}
-				catch (const fs::filesystem_error& ex)
+				catch (const fs::filesystem_error &ex)
 				{
 					error_message = "Error deleting file/folder: " + string(ex.what());
 					show_error_popup = true;
