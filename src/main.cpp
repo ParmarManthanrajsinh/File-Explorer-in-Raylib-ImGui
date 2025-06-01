@@ -11,11 +11,10 @@
 #include <map>
 #include <fstream>
 #include <array>
-
-#define MAX_BUFFER_SIZE ((int)5 * (int)1024 * (int)1024) // 5MB buffer
+using namespace std;
 
 namespace fs = std::filesystem;
-using namespace std;
+#define MAX_BUFFER_SIZE ((int)5 * (int)1024 * (int)1024) // 5MB buffer
 
 string format_size(uintmax_t size_in_bytes)
 {
@@ -73,7 +72,7 @@ int main()
 
 	// Custom theme
 	ImGuiStyle &style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_FrameBg] = ImColor(0.1f, 0.1f, 0.1f, 1.0f);
+	style.Colors[ImGuiCol_FrameBg] = ImColor(0.22f, 0.22f, 0.22f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgHovered] = ImColor(0.2f, 0.2f, 0.2f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgActive] = ImColor(0.3f, 0.3f, 0.3f, 1.0f);
 	style.WindowRounding = 5.0f;
@@ -589,9 +588,7 @@ int main()
 		ImGui::Separator();
 
 		if (files.empty())
-		{
 			ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "Directory is empty");
-		}
 
 		ImGui::EndChild(); // End Navigation
 		ImGui::End();	   // End Explorer window
