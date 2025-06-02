@@ -1,4 +1,3 @@
-// ImCustomTheme.h
 #pragma once
 
 #include <rlImGui.h>

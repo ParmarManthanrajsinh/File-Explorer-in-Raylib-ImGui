@@ -9,7 +9,6 @@ FileExplorerApp::FileExplorerApp()
 	SetTargetFPS(60);
 
 	rlImGuiSetup(true);
-
 	ImCustomTheme();
 
 	// Load Icon
