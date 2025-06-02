@@ -1,5 +1,6 @@
 // FileExplorerApp.cpp
 #include "FileExplorerApp.hpp"
+#include "ImGuiCustomTheme.h"
 
 FileExplorerApp::FileExplorerApp()
 {
@@ -9,24 +10,13 @@ FileExplorerApp::FileExplorerApp()
 
 	rlImGuiSetup(true);
 
-	// Load a font
-	ImGuiIO &io = ImGui::GetIO();
-	io.Fonts->Clear();
-	io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 20.0f);
-	rlImGuiReloadFonts();
+	ImCustomTheme();
 
 	// Load Icon
 	file_icon = LoadTexture("assets/icons/file.png");
 	folder_icon = LoadTexture("assets/icons/folder.png");
 	img_icon = LoadTexture("assets/icons/image.png");
 	edit_file_icon = LoadTexture("assets/icons/edit_file.png");
-
-	// Custom theme
-	ImGuiStyle &style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_FrameBg] = ImColor(0.22f, 0.22f, 0.22f, 1.0f);
-	style.Colors[ImGuiCol_FrameBgHovered] = ImColor(0.2f, 0.2f, 0.2f, 1.0f);
-	style.Colors[ImGuiCol_FrameBgActive] = ImColor(0.3f, 0.3f, 0.3f, 1.0f);
-	style.WindowRounding = 5.0f;
 
 	// Initialize File Browser
 	file_browser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
@@ -139,7 +129,7 @@ void FileExplorerApp::RenderMainMenuBar(bool &open, bool &save, bool &create_new
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Escape"))
 			{
-				// Break will not work in if else
+				CloseWindow();
 			}
 			ImGui::EndMenu();
 		}
