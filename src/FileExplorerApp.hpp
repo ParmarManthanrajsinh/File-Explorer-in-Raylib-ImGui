@@ -1,10 +1,8 @@
-// FileExplorerApp.h
 #pragma once
 
 #include <rlImGui.h>
 #include <imgui.h>
 #include <imfilebrowser.h>
-
 #include <filesystem>
 #include <map>
 #include <fstream>
