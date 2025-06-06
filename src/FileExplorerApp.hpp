@@ -71,6 +71,7 @@ private:
 	string file_content;
 	bool file_loaded;
 	bool file_modified;
+	bool exit;
 
 	Texture2D file_icon;
 	Texture2D folder_icon;

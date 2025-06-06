@@ -26,6 +26,7 @@ FileExplorerApp::FileExplorerApp()
 	file_content.clear();			   // Store file content for editing
 	file_loaded = false;			   // Track if file is loaded
 	file_modified = false;			   // Track if file has been modified
+	exit = false;
 
 	// Image handling variables
 	img_texture = { 0 };			  // Initialize to empty texture
@@ -61,7 +62,7 @@ FileExplorerApp::~FileExplorerApp()
 
 void FileExplorerApp::Run()
 {
-	while (!WindowShouldClose())
+	while (!WindowShouldClose() && !exit)
 	{
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -128,7 +129,7 @@ void FileExplorerApp::RenderMainMenuBar(bool& open, bool& save, bool& create_new
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Escape"))
 			{
-				//CloseWindow();
+				exit = true;
 			}
 			ImGui::EndMenu();
 		}
