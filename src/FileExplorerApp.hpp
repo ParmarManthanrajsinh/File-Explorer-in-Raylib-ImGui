@@ -50,7 +50,7 @@ private:
 	void HandleDeletePopup(bool &_delete);
 
 	// Function to render the explorer side panel
-	void RenderExplorerPanel(float menu_bar_height);
+	void RenderExplorerPanel(float menu_bar_height, bool& open);
 
 	// Function to update side menu width for resizing
 	void UpdateSideMenuWidth();

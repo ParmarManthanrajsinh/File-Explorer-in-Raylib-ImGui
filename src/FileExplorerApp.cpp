@@ -97,7 +97,7 @@ void FileExplorerApp::Run()
 
 		HandleDeletePopup(_delete);
 
-		RenderExplorerPanel(menu_bar_height);
+		RenderExplorerPanel(menu_bar_height, open);
 
 		UpdateSideMenuWidth();
 
@@ -544,7 +544,7 @@ void FileExplorerApp::HandleDeletePopup(bool &_delete)
 }
 
 // Function to render the explorer side panel
-void FileExplorerApp::RenderExplorerPanel(float menu_bar_height)
+void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool &open)
 {
 	// Explorer Side Panel (Resizable)
 	ImGui::SetNextWindowPos(ImVec2(0, menu_bar_height), ImGuiCond_Always);
@@ -555,10 +555,11 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height)
 	if (current_path == fs::current_path())
 	{
 		ImGui::Text("No folder opened\n( Just Press ctrl + O )");
-		// if (ImGui::Button("Open Folder", ImVec2(-1, 0)))
-		// {
-
-		// }
+		if (ImGui::Button("Open Folder", ImVec2(-1, 0)))
+		{
+			open = true;
+			file_browser.Open();
+		}
 		ImGui::End();
 		return;
 	}
