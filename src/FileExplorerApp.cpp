@@ -554,7 +554,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool &open)
 
 	if (current_path == fs::current_path())
 	{
-		ImGui::Text("No folder opened\n( Just Press ctrl + O )");
+		ImGui::Text("No folder opened\n");
 		if (ImGui::Button("Open Folder", ImVec2(-1, 0)))
 		{
 			open = true;
