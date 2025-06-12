@@ -20,7 +20,7 @@ FileExplorerApp::FileExplorerApp()
 	file_browser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
 									  ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoStatusBar);
 
-	current_path = fs::current_path(); // Start with the current working directory
+	current_path = ""; // Start with the current working directory
 	selected_file = fs::path();		   // To store the selected file path
 	file_content.clear();			   // Store file content for editing
 	file_loaded = false;			   // Track if file is loaded
@@ -552,7 +552,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool &open)
 
 	ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-	if (current_path == fs::current_path())
+	if (current_path == "")
 	{
 		ImGui::Text("No folder opened\n");
 		if (ImGui::Button("Open Folder", ImVec2(-1, 0)))
