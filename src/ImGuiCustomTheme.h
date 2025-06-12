@@ -1,14 +1,14 @@
 #pragma once
 
-inline void ImCustomTheme(const std::string &path = "assets/fonts/Roboto-Regular.ttf")
+inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular.ttf")
 {
 	// Load custom font
 	ImGuiIO &io = ImGui::GetIO();
 	io.Fonts->Clear();
 	io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f);
 	rlImGuiReloadFonts();
-
-	ImGuiStyle &style = ImGui::GetStyle();
+	ImGuiStyle& style = ImGui::GetStyle();
+  
 	// Deep black background colors
 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.02f, 0.02f, 0.02f, 1.0f);
 	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.05f, 0.05f, 0.05f, 1.0f);
