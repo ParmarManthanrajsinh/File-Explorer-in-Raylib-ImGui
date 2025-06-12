@@ -20,11 +20,11 @@ FileExplorerApp::FileExplorerApp()
 	file_browser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
 									  ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoStatusBar);
 
-	current_path = ""; // Start with the current working directory
-	selected_file = fs::path();		   // To store the selected file path
-	file_content.clear();			   // Store file content for editing
-	file_loaded = false;			   // Track if file is loaded
-	file_modified = false;			   // Track if file has been modified
+	current_path = "";			// Start with the current working directory
+	selected_file = fs::path(); // To store the selected file path
+	file_content.clear();		// Store file content for editing
+	file_loaded = false;		// Track if file is loaded
+	file_modified = false;		// Track if file has been modified
 	exit = false;
 
 	// Image handling variables
@@ -262,7 +262,10 @@ void FileExplorerApp::HandleErrorPopup()
 
 	if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); // Red color
 		ImGui::TextWrapped("%s", error_message.c_str());
+		ImGui::PopStyleColor();
+
 		ImGui::Separator();
 		if (ImGui::Button("OK", ImVec2(120, 0)))
 		{
