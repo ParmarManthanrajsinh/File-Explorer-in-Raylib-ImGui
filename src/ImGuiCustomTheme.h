@@ -1,32 +1,8 @@
-// #pragma once
-
-// inline void ImCustomTheme(const std::string& path = "assets/Font/Roboto-Regular.ttf")
-// {
-// 	// Load a custom font
-// 	ImGuiIO& io = ImGui::GetIO();
-// 	io.Fonts->Clear();
-// 	io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f);
-// 	rlImGuiReloadFonts();
-
-// 	// Apply a simple dark-gray theme to frame backgrounds and rounding
-// 	ImGuiStyle& style = ImGui::GetStyle();
-// 	style.Colors[ImGuiCol_FrameBg] = ImColor(0.22f, 0.22f, 0.22f, 1.0f);
-// 	style.Colors[ImGuiCol_FrameBgHovered] = ImColor(0.20f, 0.20f, 0.20f, 1.0f);
-// 	style.Colors[ImGuiCol_FrameBgActive] = ImColor(0.30f, 0.30f, 0.30f, 1.0f);
-// 	style.WindowRounding = 5.0f;
-// }
-
 #pragma once
 
-inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular.ttf")
+inline void ImCustomTheme(const std::string &path = "assets/fonts/Roboto-Regular.ttf")
 {
-	// Load a custom font
-	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->Clear();
-	io.Fonts->AddFontFromFileTTF(path.c_str(), 20.0f);
-	rlImGuiReloadFonts();
-
-	ImGuiStyle& style = ImGui::GetStyle();
+	ImGuiStyle &style = ImGui::GetStyle();
 
 	// Deep black background colors
 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.02f, 0.02f, 0.02f, 1.0f);
@@ -50,7 +26,7 @@ inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular
 
 	// Title bar
 	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.0f);
-	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);
+	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
 	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 1.0f);
 
 	// Scrollbars
@@ -72,11 +48,11 @@ inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular
 	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.30f, 0.30f, 0.30f, 0.43f);
 
 	// Borders and separators
-	style.Colors[ImGuiCol_Border] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+	style.Colors[ImGuiCol_Border] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
 	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	style.Colors[ImGuiCol_Separator] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
-	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
-	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
+	style.Colors[ImGuiCol_Separator] = ImVec4(0.50f, 0.50f, 0.50f, 1.0f);
+	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.70f, 0.70f, 0.70f, 1.0f);
+	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.90f, 0.90f, 0.90f, 1.0f);
 
 	// Menu bar
 	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.02f, 0.02f, 0.02f, 1.0f);
@@ -126,11 +102,11 @@ inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular
 	style.GrabMinSize = 12.0f;
 
 	// Perfect border sizing
-	style.WindowBorderSize = 0.0f;
+	style.WindowBorderSize = 0.5f;
 	style.ChildBorderSize = 1.0f;
 	style.PopupBorderSize = 1.0f;
-	style.FrameBorderSize = 0.0f;
-	style.TabBorderSize = 0.0f;
+	style.FrameBorderSize = 1.0f;
+	style.TabBorderSize = 0.5f;
 
 	// Window behavior
 	style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
