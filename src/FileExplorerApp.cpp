@@ -5,7 +5,7 @@ FileExplorerApp::FileExplorerApp()
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(900, 500, "File Explorer");
-	SetTargetFPS(60);
+	SetTargetFPS(120);
 
 	rlImGuiSetup(true);
 	ImCustomTheme();
@@ -931,5 +931,6 @@ map<string, string> FileExplorerApp::get_files_in_directory(const fs::path &path
 			}
 		}
 	}
+
 	return files;
 }
