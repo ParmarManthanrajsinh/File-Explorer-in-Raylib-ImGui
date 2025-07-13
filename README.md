@@ -12,6 +12,10 @@ A modern file explorer application built with C++ using Raylib and Dear ImGui fr
 - Menu bar with File, Edit, and Help options
 - Side explorer panel with hierarchical navigation
 
+## ScreenShots
+
+![screenshot](assets/screenshot.png)
+
 ## Dependencies
 
 - [raylib](https://www.raylib.com/) - A simple and easy-to-use game development library
