@@ -18,7 +18,7 @@ FileExplorerApp::FileExplorerApp()
 
 	// Initialize File Browser
 	file_browser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
-									  ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoStatusBar);
+		ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoStatusBar);
 
 	current_path = "";			// Start with the current working directory
 	selected_file = fs::path(); // To store the selected file path
@@ -28,7 +28,7 @@ FileExplorerApp::FileExplorerApp()
 	exit = false;
 
 	// Image handling variables
-	img_texture = {0};			  // Initialize to empty texture
+	img_texture = { 0 };			  // Initialize to empty texture
 	img_loaded = false;			  // Track if image is loaded
 	loaded_img_path = fs::path(); // Track which image is currently loaded
 
@@ -42,10 +42,10 @@ FileExplorerApp::FileExplorerApp()
 		".txt", ".cpp", ".h", ".hpp", ".c", ".py", ".js", ".html", ".css",
 		".json", ".md", ".xml", ".yaml", ".ini", ".log", ".bat", ".sh", ".php",
 		".rb", ".go", ".swift", ".ts", ".tsx", ".vue", ".sql", ".pl", ".lua",
-		".r", ".dart", ".scala", ".rs", ".java", ".kt"};
+		".r", ".dart", ".scala", ".rs", ".java", ".kt" };
 
 	supported_img_types = {
-		".jpg", ".png", ".bmp"};
+		".jpg", ".png", ".bmp" };
 }
 
 FileExplorerApp::~FileExplorerApp()
@@ -109,7 +109,7 @@ void FileExplorerApp::Run()
 }
 
 // Function to render the main menu bar
-void FileExplorerApp::RenderMainMenuBar(bool &open, bool &save, bool &create_new_folder, bool &create_new_file, bool &rename_file, bool &_delete)
+void FileExplorerApp::RenderMainMenuBar(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file, bool& _delete)
 {
 	// Main Menu Bar
 	if (ImGui::BeginMainMenuBar())
@@ -166,7 +166,7 @@ void FileExplorerApp::RenderMainMenuBar(bool &open, bool &save, bool &create_new
 }
 
 // Function to apply keyboard shortcuts
-void FileExplorerApp::ApplyShortcuts(bool &open, bool &save, bool &create_new_folder, bool &create_new_file, bool &rename_file)
+void FileExplorerApp::ApplyShortcuts(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file)
 {
 	// Handle keyboard shortcuts
 	if (ImGui::IsKeyPressed(ImGuiKey_O) && ImGui::GetIO().KeyCtrl)
@@ -193,7 +193,7 @@ void FileExplorerApp::ApplyShortcuts(bool &open, bool &save, bool &create_new_fo
 }
 
 // Function to process the file browser dialog
-void FileExplorerApp::ProcessFileBrowserDialog(bool &open)
+void FileExplorerApp::ProcessFileBrowserDialog(bool& open)
 {
 	// File Browser Dialog
 	if (open)
@@ -227,7 +227,7 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool &open)
 }
 
 // Function to process saving a file
-void FileExplorerApp::ProcessSaveFile(bool &save)
+void FileExplorerApp::ProcessSaveFile(bool& save)
 {
 	// Save File
 	if (save && selected_file != fs::path() && file_loaded)
@@ -276,7 +276,7 @@ void FileExplorerApp::HandleErrorPopup()
 }
 
 // Function to handle the "Create Folder" popup
-void FileExplorerApp::HandleCreateFolderPopup(bool &create_new_folder)
+void FileExplorerApp::HandleCreateFolderPopup(bool& create_new_folder)
 {
 	// New Folder Popup
 	if (create_new_folder)
@@ -319,7 +319,7 @@ void FileExplorerApp::HandleCreateFolderPopup(bool &create_new_folder)
 }
 
 // Function to handle the "Create File" popup
-void FileExplorerApp::HandleCreateFilePopup(bool &create_new_file)
+void FileExplorerApp::HandleCreateFilePopup(bool& create_new_file)
 {
 	// New File Popup
 	if (create_new_file)
@@ -372,7 +372,7 @@ void FileExplorerApp::HandleCreateFilePopup(bool &create_new_file)
 }
 
 // Function to handle the "Rename" popup
-void FileExplorerApp::HandleRenamePopup(bool &rename_file)
+void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 {
 	// Rename File Popup
 	if (rename_file)
@@ -453,7 +453,7 @@ void FileExplorerApp::HandleRenamePopup(bool &rename_file)
 						file_modified = false;
 						file_content.clear();
 					}
-					catch (const fs::filesystem_error &ex)
+					catch (const fs::filesystem_error& ex)
 					{
 						error_message = string("Error renaming ") + (is_dir ? "folder" : "file") + ": " + ex.what();
 						show_error_popup = true;
@@ -486,7 +486,7 @@ void FileExplorerApp::HandleRenamePopup(bool &rename_file)
 }
 
 // Function to handle the "Delete" popup
-void FileExplorerApp::HandleDeletePopup(bool &_delete)
+void FileExplorerApp::HandleDeletePopup(bool& _delete)
 {
 	// Delete File and Folder Popup
 	if (_delete)
@@ -529,7 +529,7 @@ void FileExplorerApp::HandleDeletePopup(bool &_delete)
 				file_modified = false;
 				file_content.clear();
 			}
-			catch (const fs::filesystem_error &ex)
+			catch (const fs::filesystem_error& ex)
 			{
 				error_message = "Error deleting file/folder: " + string(ex.what());
 				show_error_popup = true;
@@ -547,7 +547,7 @@ void FileExplorerApp::HandleDeletePopup(bool &_delete)
 }
 
 // Function to render the explorer side panel
-void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool &open)
+void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 {
 	// Explorer Side Panel (Resizable)
 	ImGui::SetNextWindowPos(ImVec2(0, menu_bar_height), ImGuiCond_Always);
@@ -608,7 +608,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool &open)
 	vector<pair<string, string>> directories;
 	vector<pair<string, string>> regular_files;
 
-	for (const auto &file : files)
+	for (const auto& file : files)
 	{
 		if (file.second == "[D]")
 			directories.emplace_back(file);
@@ -620,7 +620,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool &open)
 	if (!directories.empty())
 	{
 		ImGui::TextColored(ImVec4(0.7f, 0.7f, 5.0f, 1.0f), "Directories:");
-		for (const auto &dir : directories)
+		for (const auto& dir : directories)
 		{
 			string label = dir.first;
 			bool is_selected = (selected_file == current_path / dir.first);
@@ -660,7 +660,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool &open)
 	if (!regular_files.empty())
 	{
 		ImGui::TextColored(ImVec4(0.7f, 1.0f, 0.7f, 1.0f), "Files:");
-		for (const auto &file : regular_files)
+		for (const auto& file : regular_files)
 		{
 			fs::path file_path = current_path / file.first;
 			bool is_selected = (selected_file == file_path);
@@ -739,8 +739,8 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 
 		ImGui::SetNextWindowPos(ImVec2(side_menu_width + 5, menu_bar_height), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(static_cast<float>(GetScreenWidth() - side_menu_width - 5),
-										static_cast<float>(GetScreenHeight() - menu_bar_height)),
-								 ImGuiCond_Always);
+			static_cast<float>(GetScreenHeight() - menu_bar_height)),
+			ImGuiCond_Always);
 		ImGui::Begin(window_title.c_str(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
 		// File info header
@@ -803,7 +803,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				}
 
 				if (ImGui::InputTextMultiline("##editor", &edit_buffer[0], edit_buffer.capacity(),
-											  ImVec2(-1, -1), ImGuiInputTextFlags_AllowTabInput))
+					ImVec2(-1, -1), ImGuiInputTextFlags_AllowTabInput))
 				{
 					file_content = edit_buffer.c_str(); // Update content
 					file_modified = true;
@@ -895,7 +895,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 // Function to format file sizes
 string FileExplorerApp::format_size(uintmax_t size_in_bytes)
 {
-	const char *units[] = {"B", "KB", "MB", "GB", "TB"};
+	const char* units[] = { "B", "KB", "MB", "GB", "TB" };
 	uint8_t unit_index = 0;
 	double size = static_cast<double>(size_in_bytes);
 
@@ -911,12 +911,12 @@ string FileExplorerApp::format_size(uintmax_t size_in_bytes)
 }
 
 // Function to get files in a directory
-map<string, string> FileExplorerApp::get_files_in_directory(const fs::path &path)
+map<string, string> FileExplorerApp::get_files_in_directory(const fs::path& path)
 {
 	map<string, string> files;
 	if (fs::exists(path) && fs::is_directory(path))
 	{
-		for (const auto &entry : fs::directory_iterator(path))
+		for (const auto& entry : fs::directory_iterator(path))
 		{
 			if (entry.is_regular_file())
 			{
