@@ -787,10 +787,33 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 			bool b_IsSelected = (selected_file == file_path);
 			Texture2D icon = file_icon;
 			string ext = fs::path(file.first).extension().string();
-			if (find(supported_img_types.begin(), supported_img_types.end(), ext) != supported_img_types.end())
+
+			if
+			(
+				find
+				(
+					supported_img_types.begin(),
+					supported_img_types.end(),
+					ext
+				) != supported_img_types.end()
+			)
+			{
 				icon = img_icon;
-			else if (find(supported_file_types.begin(), supported_file_types.end(), ext) != supported_file_types.end())
+			}
+
+			else if
+			(
+				find
+				(
+					supported_file_types.begin(),
+					supported_file_types.end(),
+					ext
+				) != supported_file_types.end()
+			)
+			{
 				icon = edit_file_icon;
+			}
+
 			string label = file.first + " (" + file.second + ")";
 
 			// Start a group to keep icon and text together
