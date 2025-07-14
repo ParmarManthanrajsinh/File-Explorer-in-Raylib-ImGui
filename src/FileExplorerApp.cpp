@@ -158,7 +158,17 @@ void FileExplorerApp::RenderMainMenuBar
 				open = true;
 				file_browser.Open();
 			}
-			if (ImGui::MenuItem("Save", "Ctrl+S", false, selected_file != fs::path() && b_FileLoaded))
+
+			if
+				(
+					ImGui::MenuItem
+					(
+						"Save",
+						"Ctrl+S",
+						false,
+						selected_file != fs::path() && b_FileLoaded
+					)
+					)
 			{
 				save = true;
 			}
@@ -203,23 +213,40 @@ void FileExplorerApp::RenderMainMenuBar
 }
 
 // Function to apply keyboard shortcuts
-void FileExplorerApp::ApplyShortcuts(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file)
+void FileExplorerApp::ApplyShortcuts
+(
+	bool& open,
+	bool& save,
+	bool& create_new_folder,
+	bool& create_new_file,
+	bool& rename_file
+)
 {
 	// Handle keyboard shortcuts
-	if (ImGui::IsKeyPressed(ImGuiKey_O) && ImGui::GetIO().KeyCtrl)
+	if (ImGui::IsKeyPressed(ImGuiKey_O)
+		&& ImGui::GetIO().KeyCtrl)
 	{
 		open = true;
 		file_browser.Open();
 	}
-	if (ImGui::IsKeyPressed(ImGuiKey_S) && ImGui::GetIO().KeyCtrl && selected_file != fs::path() && b_FileLoaded)
+
+	if (ImGui::IsKeyPressed(ImGuiKey_S)
+		&& ImGui::GetIO().KeyCtrl
+		&& selected_file != fs::path()
+		&& b_FileLoaded)
 	{
 		save = true;
 	}
-	if (ImGui::IsKeyPressed(ImGuiKey_N) && ImGui::GetIO().KeyCtrl && !ImGui::GetIO().KeyShift)
+
+	if (ImGui::IsKeyPressed(ImGuiKey_N)
+		&& ImGui::GetIO().KeyCtrl
+		&& !ImGui::GetIO().KeyShift)
 	{
 		create_new_file = true;
 	}
-	if (ImGui::IsKeyPressed(ImGuiKey_N) && ImGui::GetIO().KeyCtrl && ImGui::GetIO().KeyShift)
+	if (ImGui::IsKeyPressed(ImGuiKey_N)
+		&& ImGui::GetIO().KeyCtrl
+		&& ImGui::GetIO().KeyShift)
 	{
 		create_new_folder = true;
 	}
@@ -267,7 +294,9 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& open)
 void FileExplorerApp::ProcessSaveFile(bool& save)
 {
 	// Save File
-	if (save && selected_file != fs::path() && b_FileLoaded)
+	if (save
+		&& selected_file != fs::path()
+		&& b_FileLoaded)
 	{
 		ofstream out_file(selected_file, ios::out | ios::binary);
 		if (out_file.is_open())
@@ -423,8 +452,11 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 		static char s_NewName[128] = "";
 		static bool sb_FirstFrame = true;
 
-		bool b_RenamingSelectedFile = !selected_file.empty() && fs::exists(selected_file);
-		bool b_IsDir = b_RenamingSelectedFile ? fs::is_directory(selected_file) : fs::is_directory(current_path);
+		bool b_RenamingSelectedFile = !selected_file.empty()
+			&& fs::exists(selected_file);
+
+		bool b_IsDir = b_RenamingSelectedFile ?
+			fs::is_directory(selected_file) : fs::is_directory(current_path);
 
 		// Initialize the input field with current filename when popup first opens
 		if (sb_FirstFrame)
@@ -432,18 +464,33 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 			if (b_RenamingSelectedFile)
 			{
 				// Renaming the selected file/folder
-				strncpy(s_NewName, selected_file.filename().string().c_str(), sizeof(s_NewName) - 1);
+				strncpy
+				(
+					s_NewName,
+					selected_file.filename().string().c_str(),
+					sizeof(s_NewName) - 1
+				);
 			}
 			else
 			{
 				// Renaming the current directory
-				strncpy(s_NewName, current_path.filename().string().c_str(), sizeof(s_NewName) - 1);
+				strncpy
+				(
+					s_NewName,
+					current_path.filename().string().c_str(),
+					sizeof(s_NewName) - 1
+				);
 			}
 			s_NewName[sizeof(s_NewName) - 1] = '\0';
 			sb_FirstFrame = false;
 		}
 
-		ImGui::InputText(b_IsDir ? "New Folder Name" : "New File Name", s_NewName, sizeof(s_NewName));
+		ImGui::InputText
+		(
+			b_IsDir ? "New Folder Name" : "New File Name",
+			s_NewName,
+			sizeof(s_NewName)
+		);
 
 		if (ImGui::Button("Rename"))
 		{
@@ -492,20 +539,27 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 					}
 					catch (const fs::filesystem_error& ex)
 					{
-						error_message = string("Error renaming ") + (b_IsDir ? "folder" : "file") + ": " + ex.what();
+						error_message = string("Error renaming ")
+							+ (b_IsDir ? "folder" : "file")
+							+ ": "
+							+ ex.what();
+
 						b_ShowErrorPopup = true;
 					}
 				}
 				else
 				{
-					error_message = string(b_IsDir ? "Folder" : "File") + " already exists!";
+					error_message =
+						string(b_IsDir ? "Folder" : "File")
+						+ " already exists!";
+
 					b_ShowErrorPopup = true;
 				}
 			}
 
 			// Reset for next use and close popup
 			memset(s_NewName, 0, sizeof(s_NewName));
-			sb_FirstFrame = true; // FIXED: Reset first_frame for next popup opening
+			sb_FirstFrame = true;
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -514,7 +568,7 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 		{
 			// Reset for next use and close popup
 			memset(s_NewName, 0, sizeof(s_NewName));
-			sb_FirstFrame = true; // FIXED: Reset first_frame for next popup opening
+			sb_FirstFrame = true;
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -534,10 +588,10 @@ void FileExplorerApp::HandleDeletePopup(bool& _delete)
 
 	if (ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		bool renaming_selected_file = !selected_file.empty() && fs::exists(selected_file);
-		bool is_dir = renaming_selected_file ? fs::is_directory(selected_file) : fs::is_directory(current_path);
+		bool b_RenamingSelectedFile = !selected_file.empty() && fs::exists(selected_file);
+		bool b_IsDir = b_RenamingSelectedFile ? fs::is_directory(selected_file) : fs::is_directory(current_path);
 
-		if (renaming_selected_file)
+		if (b_RenamingSelectedFile)
 		{
 			ImGui::Text("Are you sure you want to delete '%s'?", selected_file.filename().string().c_str());
 		}
@@ -551,7 +605,7 @@ void FileExplorerApp::HandleDeletePopup(bool& _delete)
 		{
 			try
 			{
-				if (renaming_selected_file)
+				if (b_RenamingSelectedFile)
 				{
 					fs::remove_all(selected_file);
 					selected_file = fs::path();
