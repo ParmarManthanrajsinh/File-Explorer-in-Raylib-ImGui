@@ -588,16 +588,26 @@ void FileExplorerApp::HandleDeletePopup(bool& _delete)
 
 	if (ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		bool b_RenamingSelectedFile = !selected_file.empty() && fs::exists(selected_file);
-		bool b_IsDir = b_RenamingSelectedFile ? fs::is_directory(selected_file) : fs::is_directory(current_path);
+		bool b_RenamingSelectedFile = !selected_file.empty()
+			&& fs::exists(selected_file);
+
+		bool b_IsDir = b_RenamingSelectedFile ?
+			fs::is_directory(selected_file) : fs::is_directory(current_path);
 
 		if (b_RenamingSelectedFile)
 		{
-			ImGui::Text("Are you sure you want to delete '%s'?", selected_file.filename().string().c_str());
+			ImGui::Text
+			(
+				"Are you sure you want to delete '%s'?",
+				selected_file.filename().string().c_str()
+			);
 		}
 		else
 		{
-			ImGui::Text("Are you sure you want to delete the current directory '%s'?", current_path.filename().string().c_str());
+			ImGui::Text
+			(
+				"Are you sure you want to delete the current directory '%s'?", current_path.filename().string().c_str()
+			);
 		}
 
 		// Show confirmation buttons
@@ -641,10 +651,30 @@ void FileExplorerApp::HandleDeletePopup(bool& _delete)
 void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 {
 	// Explorer Side Panel (Resizable)
-	ImGui::SetNextWindowPos(ImVec2(0, menu_bar_height), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(side_menu_width, static_cast<float>(GetScreenHeight() - menu_bar_height)), ImGuiCond_Always);
+	ImGui::SetNextWindowPos
+	(
+		ImVec2(0, menu_bar_height),
+		ImGuiCond_Always
+	);
 
-	ImGui::Begin("Explorer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	ImGui::SetNextWindowSize
+	(
+		ImVec2
+		(
+			side_menu_width, static_cast<float>(GetScreenHeight() - menu_bar_height)
+		),
+		ImGuiCond_Always
+	);
+
+	ImGui::Begin
+	(
+		"Explorer",
+		nullptr,
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize
+	);
 
 	if (current_path == "")
 	{
