@@ -23,18 +23,18 @@ FileExplorerApp::FileExplorerApp()
 	current_path = "";			// Start with the current working directory
 	selected_file = fs::path(); // To store the selected file path
 	file_content.clear();		// Store file content for editing
-	file_loaded = false;		// Track if file is loaded
-	file_modified = false;		// Track if file has been modified
-	exit = false;
+	b_FileLoaded = false;		// Track if file is loaded
+	b_FileModified = false;		// Track if file has been modified
+	b_Exit = false;
 
 	// Image handling variables
 	img_texture = { 0 };			  // Initialize to empty texture
-	img_loaded = false;			  // Track if image is loaded
+	b_ImgLoaded = false;			  // Track if image is loaded
 	loaded_img_path = fs::path(); // Track which image is currently loaded
 
 	// UI state variables
-	show_save_dialog = false;
-	show_error_popup = false;
+	b_ShowSaveDialog = false;
+	b_ShowErrorPopup = false;
 	error_message.clear();
 	side_menu_width = 300.0f; // Make resizable
 
@@ -51,7 +51,7 @@ FileExplorerApp::FileExplorerApp()
 FileExplorerApp::~FileExplorerApp()
 {
 	// Clean up loaded texture before closing
-	if (img_loaded && img_texture.id != 0)
+	if (b_ImgLoaded && img_texture.id != 0)
 	{
 		UnloadTexture(img_texture);
 	}
@@ -61,43 +61,43 @@ FileExplorerApp::~FileExplorerApp()
 
 void FileExplorerApp::Run()
 {
-	while (!WindowShouldClose() && !exit)
+	while (!WindowShouldClose() && !b_Exit)
 	{
 		BeginDrawing();
 		ClearBackground(BLACK);
 
 		rlImGuiBegin();
 
-		static bool open = false;
-		static bool save = false;
-		static bool create_new_folder = false;
-		static bool create_new_file = false;
-		static bool rename_file = false;
-		static bool _delete = false;
+		static bool sb_Open = false;
+		static bool sb_Save = false;
+		static bool sb_CreateNewFolder = false;
+		static bool sb_CreateNewFile = false;
+		static bool sb_RenameFile = false;
+		static bool sb_Delete = false;
 
 		ImGui::GetStyle().FramePadding.y = 6.0f;
 
-		RenderMainMenuBar(open, save, create_new_folder, create_new_file, rename_file, _delete);
+		RenderMainMenuBar(sb_Open, sb_Save, sb_CreateNewFolder, sb_CreateNewFile, sb_RenameFile, sb_Delete);
 
 		float menu_bar_height = ImGui::GetFrameHeight();
 
-		ApplyShortcuts(open, save, create_new_folder, create_new_file, rename_file);
+		ApplyShortcuts(sb_Open, sb_Save, sb_CreateNewFolder, sb_CreateNewFile, sb_RenameFile);
 
-		ProcessFileBrowserDialog(open);
+		ProcessFileBrowserDialog(sb_Open);
 
-		ProcessSaveFile(save);
+		ProcessSaveFile(sb_Save);
 
 		HandleErrorPopup();
 
-		HandleCreateFolderPopup(create_new_folder);
+		HandleCreateFolderPopup(sb_CreateNewFolder);
 
-		HandleCreateFilePopup(create_new_file);
+		HandleCreateFilePopup(sb_CreateNewFile);
 
-		HandleRenamePopup(rename_file);
+		HandleRenamePopup(sb_RenameFile);
 
-		HandleDeletePopup(_delete);
+		HandleDeletePopup(sb_Delete);
 
-		RenderExplorerPanel(menu_bar_height, open);
+		RenderExplorerPanel(menu_bar_height, sb_Open);
 
 		UpdateSideMenuWidth();
 
@@ -121,14 +121,14 @@ void FileExplorerApp::RenderMainMenuBar(bool& open, bool& save, bool& create_new
 				open = true;
 				file_browser.Open();
 			}
-			if (ImGui::MenuItem("Save", "Ctrl+S", false, selected_file != fs::path() && file_loaded))
+			if (ImGui::MenuItem("Save", "Ctrl+S", false, selected_file != fs::path() && b_FileLoaded))
 			{
 				save = true;
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Escape"))
 			{
-				exit = true;
+				b_Exit = true;
 			}
 			ImGui::EndMenu();
 		}
@@ -157,7 +157,7 @@ void FileExplorerApp::RenderMainMenuBar(bool& open, bool& save, bool& create_new
 			if (ImGui::MenuItem("About"))
 			{
 				error_message = "Simple File Explorer\nBuilt with Raylib and ImGui";
-				show_error_popup = true;
+				b_ShowErrorPopup = true;
 			}
 			ImGui::EndMenu();
 		}
@@ -174,7 +174,7 @@ void FileExplorerApp::ApplyShortcuts(bool& open, bool& save, bool& create_new_fo
 		open = true;
 		file_browser.Open();
 	}
-	if (ImGui::IsKeyPressed(ImGuiKey_S) && ImGui::GetIO().KeyCtrl && selected_file != fs::path() && file_loaded)
+	if (ImGui::IsKeyPressed(ImGuiKey_S) && ImGui::GetIO().KeyCtrl && selected_file != fs::path() && b_FileLoaded)
 	{
 		save = true;
 	}
@@ -209,15 +209,15 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& open)
 				current_path = new_path;
 
 				// Clean up any loaded resources when changing directory
-				if (img_loaded && img_texture.id != 0)
+				if (b_ImgLoaded && img_texture.id != 0)
 				{
 					UnloadTexture(img_texture);
-					img_loaded = false;
+					b_ImgLoaded = false;
 					loaded_img_path = fs::path();
 				}
 				selected_file = fs::path();
-				file_loaded = false;
-				file_modified = false;
+				b_FileLoaded = false;
+				b_FileModified = false;
 				file_content.clear();
 			}
 			file_browser.ClearSelected();
@@ -230,20 +230,20 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& open)
 void FileExplorerApp::ProcessSaveFile(bool& save)
 {
 	// Save File
-	if (save && selected_file != fs::path() && file_loaded)
+	if (save && selected_file != fs::path() && b_FileLoaded)
 	{
 		ofstream out_file(selected_file, ios::out | ios::binary);
 		if (out_file.is_open())
 		{
 			out_file.write(file_content.data(), file_content.size());
 			out_file.close();
-			file_modified = false;
+			b_FileModified = false;
 			save = false;
 		}
 		else
 		{
 			error_message = "Could not save file: " + selected_file.string();
-			show_error_popup = true;
+			b_ShowErrorPopup = true;
 			save = false;
 		}
 	}
@@ -253,10 +253,10 @@ void FileExplorerApp::ProcessSaveFile(bool& save)
 void FileExplorerApp::HandleErrorPopup()
 {
 	// Error Popup
-	if (show_error_popup)
+	if (b_ShowErrorPopup)
 	{
 		ImGui::OpenPopup("Error");
-		show_error_popup = false;
+		b_ShowErrorPopup = false;
 		selected_file = fs::path();
 	}
 
@@ -287,26 +287,26 @@ void FileExplorerApp::HandleCreateFolderPopup(bool& create_new_folder)
 
 	if (ImGui::BeginPopupModal("Create Folder", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		static char folder_name[128] = "";
-		ImGui::InputText("Folder Name", folder_name, sizeof(folder_name));
+		static char s_FolderName[128] = "";
+		ImGui::InputText("Folder Name", s_FolderName, sizeof(s_FolderName));
 		if (ImGui::Button("Create"))
 		{
-			fs::path new_folder_path = current_path / folder_name;
+			fs::path new_folder_path = current_path / s_FolderName;
 			if (!fs::exists(new_folder_path))
 			{
 				fs::create_directory(new_folder_path);
 				current_path = new_folder_path; // Change to the new folder
 				selected_file = fs::path();		// Reset selected file
-				file_loaded = false;
-				file_modified = false;
+				b_FileLoaded = false;
+				b_FileModified = false;
 				file_content.clear();
 			}
 			else
 			{
 				error_message = "Folder already exists!";
-				show_error_popup = true;
+				b_ShowErrorPopup = true;
 			}
-			folder_name[0] = '\0';
+			s_FolderName[0] = '\0';
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
@@ -330,12 +330,12 @@ void FileExplorerApp::HandleCreateFilePopup(bool& create_new_file)
 
 	if (ImGui::BeginPopupModal("Create File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		static char new_file_name[128] = "";
-		ImGui::InputText("File Name", new_file_name, sizeof(new_file_name));
+		static char s_NewFileName[128] = "";
+		ImGui::InputText("File Name", s_NewFileName, sizeof(s_NewFileName));
 
 		if (ImGui::Button("Create"))
 		{
-			fs::path new_file_path = current_path / new_file_name;
+			fs::path new_file_path = current_path / s_NewFileName;
 			if (!fs::exists(new_file_path))
 			{
 				ofstream file(new_file_path);
@@ -343,22 +343,22 @@ void FileExplorerApp::HandleCreateFilePopup(bool& create_new_file)
 				{
 					file.close();
 					selected_file = new_file_path;
-					file_loaded = false;
-					file_modified = false;
+					b_FileLoaded = false;
+					b_FileModified = false;
 					file_content.clear();
 				}
 				else
 				{
 					error_message = "Could not create file: " + new_file_path.string();
-					show_error_popup = true;
+					b_ShowErrorPopup = true;
 				}
 			}
 			else
 			{
 				error_message = "File already exists!";
-				show_error_popup = true;
+				b_ShowErrorPopup = true;
 			}
-			new_file_name[0] = '\0';
+			s_NewFileName[0] = '\0';
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
@@ -383,52 +383,52 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 
 	if (ImGui::BeginPopupModal("Rename", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		static char new_name[128] = "";
-		static bool first_frame = true;
+		static char s_NewName[128] = "";
+		static bool sb_FirstFrame = true;
 
-		bool renaming_selected_file = !selected_file.empty() && fs::exists(selected_file);
-		bool is_dir = renaming_selected_file ? fs::is_directory(selected_file) : fs::is_directory(current_path);
+		bool b_RenamingSelectedFile = !selected_file.empty() && fs::exists(selected_file);
+		bool b_IsDir = b_RenamingSelectedFile ? fs::is_directory(selected_file) : fs::is_directory(current_path);
 
 		// Initialize the input field with current filename when popup first opens
-		if (first_frame)
+		if (sb_FirstFrame)
 		{
-			if (renaming_selected_file)
+			if (b_RenamingSelectedFile)
 			{
 				// Renaming the selected file/folder
-				strncpy(new_name, selected_file.filename().string().c_str(), sizeof(new_name) - 1);
+				strncpy(s_NewName, selected_file.filename().string().c_str(), sizeof(s_NewName) - 1);
 			}
 			else
 			{
 				// Renaming the current directory
-				strncpy(new_name, current_path.filename().string().c_str(), sizeof(new_name) - 1);
+				strncpy(s_NewName, current_path.filename().string().c_str(), sizeof(s_NewName) - 1);
 			}
-			new_name[sizeof(new_name) - 1] = '\0';
-			first_frame = false;
+			s_NewName[sizeof(s_NewName) - 1] = '\0';
+			sb_FirstFrame = false;
 		}
 
-		ImGui::InputText(is_dir ? "New Folder Name" : "New File Name", new_name, sizeof(new_name));
+		ImGui::InputText(b_IsDir ? "New Folder Name" : "New File Name", s_NewName, sizeof(s_NewName));
 
 		if (ImGui::Button("Rename"))
 		{
 			// Validate input
-			if (strlen(new_name) == 0)
+			if (strlen(s_NewName) == 0)
 			{
 				error_message = "Name cannot be empty!";
-				show_error_popup = true;
+				b_ShowErrorPopup = true;
 			}
 			else
 			{
 				fs::path source_path, new_path;
 
-				if (renaming_selected_file)
+				if (b_RenamingSelectedFile)
 				{
 					source_path = selected_file;
-					new_path = selected_file.parent_path() / new_name;
+					new_path = selected_file.parent_path() / s_NewName;
 				}
 				else
 				{
 					source_path = current_path;
-					new_path = current_path.parent_path() / new_name;
+					new_path = current_path.parent_path() / s_NewName;
 				}
 
 				if (!fs::exists(new_path))
@@ -438,7 +438,7 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 						fs::rename(source_path, new_path);
 
 						// Update paths after successful rename
-						if (renaming_selected_file)
+						if (b_RenamingSelectedFile)
 						{
 							selected_file = new_path;
 						}
@@ -449,26 +449,26 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 						}
 
 						// Reset file state
-						file_loaded = false;
-						file_modified = false;
+						b_FileLoaded = false;
+						b_FileModified = false;
 						file_content.clear();
 					}
 					catch (const fs::filesystem_error& ex)
 					{
-						error_message = string("Error renaming ") + (is_dir ? "folder" : "file") + ": " + ex.what();
-						show_error_popup = true;
+						error_message = string("Error renaming ") + (b_IsDir ? "folder" : "file") + ": " + ex.what();
+						b_ShowErrorPopup = true;
 					}
 				}
 				else
 				{
-					error_message = string(is_dir ? "Folder" : "File") + " already exists!";
-					show_error_popup = true;
+					error_message = string(b_IsDir ? "Folder" : "File") + " already exists!";
+					b_ShowErrorPopup = true;
 				}
 			}
 
 			// Reset for next use and close popup
-			memset(new_name, 0, sizeof(new_name));
-			first_frame = true; // FIXED: Reset first_frame for next popup opening
+			memset(s_NewName, 0, sizeof(s_NewName));
+			sb_FirstFrame = true; // FIXED: Reset first_frame for next popup opening
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -476,8 +476,8 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 		if (ImGui::Button("Cancel"))
 		{
 			// Reset for next use and close popup
-			memset(new_name, 0, sizeof(new_name));
-			first_frame = true; // FIXED: Reset first_frame for next popup opening
+			memset(s_NewName, 0, sizeof(s_NewName));
+			sb_FirstFrame = true; // FIXED: Reset first_frame for next popup opening
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -525,14 +525,14 @@ void FileExplorerApp::HandleDeletePopup(bool& _delete)
 					current_path = fs::current_path();
 					selected_file = fs::path();
 				}
-				file_loaded = false;
-				file_modified = false;
+				b_FileLoaded = false;
+				b_FileModified = false;
 				file_content.clear();
 			}
 			catch (const fs::filesystem_error& ex)
 			{
 				error_message = "Error deleting file/folder: " + string(ex.what());
-				show_error_popup = true;
+				b_ShowErrorPopup = true;
 			}
 			ImGui::CloseCurrentPopup();
 		}
@@ -587,15 +587,15 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 		{
 			current_path = current_path.parent_path();
 			// Clean up loaded resources when navigating back
-			if (img_loaded && img_texture.id != 0)
+			if (b_ImgLoaded && img_texture.id != 0)
 			{
 				UnloadTexture(img_texture);
-				img_loaded = false;
+				b_ImgLoaded = false;
 				loaded_img_path = fs::path();
 			}
 			selected_file = fs::path();
-			file_loaded = false;
-			file_modified = false;
+			b_FileLoaded = false;
+			b_FileModified = false;
 			file_content.clear();
 		}
 		ImGui::Separator();
@@ -623,7 +623,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 		for (const auto& dir : directories)
 		{
 			string label = dir.first;
-			bool is_selected = (selected_file == current_path / dir.first);
+			bool b_IsSelected = (selected_file == current_path / dir.first);
 
 			// Start a group to keep icon and text together
 			ImGui::BeginGroup();
@@ -636,19 +636,19 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 			ImGui::SetCursorPos(ImVec2(cursor_pos.x - 6.0f, cursor_pos.y + 6.0f));
 
 			// Then draw the selectable
-			if (ImGui::Selectable(label.c_str(), is_selected))
+			if (ImGui::Selectable(label.c_str(), b_IsSelected))
 			{
 				current_path /= dir.first;
 				// Clean up any loaded resources
-				if (img_loaded && img_texture.id != 0)
+				if (b_ImgLoaded && img_texture.id != 0)
 				{
 					UnloadTexture(img_texture);
-					img_loaded = false;
+					b_ImgLoaded = false;
 					loaded_img_path = fs::path();
 				}
 				selected_file = fs::path();
-				file_loaded = false;
-				file_modified = false;
+				b_FileLoaded = false;
+				b_FileModified = false;
 				file_content.clear();
 			}
 
@@ -663,7 +663,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 		for (const auto& file : regular_files)
 		{
 			fs::path file_path = current_path / file.first;
-			bool is_selected = (selected_file == file_path);
+			bool b_IsSelected = (selected_file == file_path);
 			Texture2D icon = file_icon;
 			string ext = fs::path(file.first).extension().string();
 			if (find(supported_img_types.begin(), supported_img_types.end(), ext) != supported_img_types.end())
@@ -684,21 +684,21 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 			ImGui::SetCursorPos(ImVec2(cursor_pos.x - 6.0f, cursor_pos.y + 6.0f));
 
 			// Then draw the selectable
-			if (ImGui::Selectable(label.c_str(), is_selected))
+			if (ImGui::Selectable(label.c_str(), b_IsSelected))
 			{
 				// Only process if it's a different file
 				if (selected_file != file_path)
 				{
 					// Clean up previous resources
-					if (img_loaded && img_texture.id != 0)
+					if (b_ImgLoaded && img_texture.id != 0)
 					{
 						UnloadTexture(img_texture);
-						img_loaded = false;
+						b_ImgLoaded = false;
 						loaded_img_path = fs::path();
 					}
 					selected_file = file_path;
-					file_loaded = false;
-					file_modified = false;
+					b_FileLoaded = false;
+					b_FileModified = false;
 					file_content.clear();
 				}
 			}
@@ -734,7 +734,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 	{
 		string file_name = selected_file.filename().string();
 		string window_title = file_name;
-		if (file_modified)
+		if (b_FileModified)
 			window_title += " *";
 
 		ImGui::SetNextWindowPos(ImVec2(side_menu_width + 5, menu_bar_height), ImGuiCond_Always);
@@ -761,7 +761,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		// Handle text files
 		if (find(supported_file_types.begin(), supported_file_types.end(), file_ext) != supported_file_types.end())
 		{
-			if (!file_loaded)
+			if (!b_FileLoaded)
 			{
 				ifstream file(selected_file, ios::in | ios::binary);
 				if (file.is_open())
@@ -773,7 +773,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 					if (fileSize > MAX_BUFFER_SIZE)
 					{
 						error_message = "File too large! Maximum size: " + to_string(MAX_BUFFER_SIZE / (1024 * 1024)) + " MB";
-						show_error_popup = true;
+						b_ShowErrorPopup = true;
 					}
 					else
 					{
@@ -781,8 +781,8 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 						file.read(&file_content[0], fileSize);
 						file_content[fileSize] = '\0'; // Null terminate
 						file_content.resize(fileSize);
-						file_loaded = true;
-						file_modified = false;
+						b_FileLoaded = true;
+						b_FileModified = false;
 					}
 					file.close();
 				}
@@ -792,21 +792,21 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				}
 			}
 
-			if (file_loaded)
+			if (b_FileLoaded)
 			{
 				// Create a larger buffer for editing
-				static string edit_buffer;
-				if (edit_buffer.size() != file_content.size() + 1024)
+				static string s_EditBuffer;
+				if (s_EditBuffer.size() != file_content.size() + 1024)
 				{
-					edit_buffer = file_content;
-					edit_buffer.resize(file_content.size() + 1024);
+					s_EditBuffer = file_content;
+					s_EditBuffer.resize(file_content.size() + 1024);
 				}
 
-				if (ImGui::InputTextMultiline("##editor", &edit_buffer[0], edit_buffer.capacity(),
+				if (ImGui::InputTextMultiline("##editor", &s_EditBuffer[0], s_EditBuffer.capacity(),
 					ImVec2(-1, -1), ImGuiInputTextFlags_AllowTabInput))
 				{
-					file_content = edit_buffer.c_str(); // Update content
-					file_modified = true;
+					file_content = s_EditBuffer.c_str(); // Update content
+					b_FileModified = true;
 				}
 			}
 		}
@@ -814,10 +814,10 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		else if (find(supported_img_types.begin(), supported_img_types.end(), file_ext) != supported_img_types.end())
 		{
 			// Only load texture if it's a different file or not loaded yet
-			if (!img_loaded || loaded_img_path != selected_file)
+			if (!b_ImgLoaded || loaded_img_path != selected_file)
 			{
 				// Unload previous texture if one was loaded
-				if (img_loaded && img_texture.id != 0)
+				if (b_ImgLoaded && img_texture.id != 0)
 				{
 					UnloadTexture(img_texture);
 				}
@@ -828,19 +828,19 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				{
 					img_texture = LoadTextureFromImage(img);
 					UnloadImage(img); // Free the image data, keep only the texture
-					img_loaded = true;
+					b_ImgLoaded = true;
 					loaded_img_path = selected_file;
 				}
 				else
 				{
 					error_message = "Failed to load image: " + selected_file.filename().string();
-					show_error_popup = true;
-					img_loaded = false;
+					b_ShowErrorPopup = true;
+					b_ImgLoaded = false;
 				}
 			}
 
 			// Display the image if loaded successfully
-			if (img_loaded && img_texture.id != 0)
+			if (b_ImgLoaded && img_texture.id != 0)
 			{
 				// Calculate display size while maintaining aspect ratio
 				float img_width = static_cast<float>(img_texture.width);
@@ -895,18 +895,25 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 // Function to format file sizes
 string FileExplorerApp::format_size(uintmax_t size_in_bytes)
 {
-	const char* units[] = { "B", "KB", "MB", "GB", "TB" };
+	constexpr std::array<const char*, 5> ce_UNITS =
+	{
+		"B", "KB", "MB", "GB", "TB"
+	};
 	uint8_t unit_index = 0;
 	double size = static_cast<double>(size_in_bytes);
 
-	while (size >= 1024 && unit_index < 4)
+	while (size >= 1024.0f && unit_index < 4)
 	{
-		size /= 1024;
+		size /= 1024.0f;
 		unit_index++;
 	}
 
-	ostringstream out;
-	out << fixed << setprecision(2) << size << ' ' << units[unit_index];
+	std::ostringstream out;
+	out << std::fixed
+		<< std::setprecision(2)
+		<< size
+		<< ' '
+		<< ce_UNITS[unit_index];
 	return out.str();
 }
 

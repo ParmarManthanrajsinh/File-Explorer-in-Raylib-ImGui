@@ -23,31 +23,31 @@ public:
 
 private:
 	// Function to render the main menu bar
-	void RenderMainMenuBar(bool &open, bool &save, bool &create_new_folder, bool &create_new_file, bool &rename_file, bool &_delete);
+	void RenderMainMenuBar(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file, bool& _delete);
 
 	// Function to apply keyboard shortcuts
-	void ApplyShortcuts(bool &open, bool &save, bool &create_new_folder, bool &create_new_file, bool &rename_file);
+	void ApplyShortcuts(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file);
 
 	// Function to process the file browser dialog
-	void ProcessFileBrowserDialog(bool &open);
+	void ProcessFileBrowserDialog(bool& open);
 
 	// Function to process saving a file
-	void ProcessSaveFile(bool &save);
+	void ProcessSaveFile(bool& save);
 
 	// Function to handle error popups
 	void HandleErrorPopup();
 
 	// Function to handle the "Create Folder" popup
-	void HandleCreateFolderPopup(bool &create_new_folder);
+	void HandleCreateFolderPopup(bool& create_new_folder);
 
 	// Function to handle the "Create File" popup
-	void HandleCreateFilePopup(bool &create_new_file);
+	void HandleCreateFilePopup(bool& create_new_file);
 
 	// Function to handle the "Rename" popup
-	void HandleRenamePopup(bool &rename_file);
+	void HandleRenamePopup(bool& rename_file);
 
 	// Function to handle the "Delete" popup
-	void HandleDeletePopup(bool &_delete);
+	void HandleDeletePopup(bool& _delete);
 
 	// Function to render the explorer side panel
 	void RenderExplorerPanel(float menu_bar_height, bool& open);
@@ -62,16 +62,16 @@ private:
 	string format_size(uintmax_t size_in_bytes);
 
 	// Function to get files in a directory
-	map<string, string> get_files_in_directory(const fs::path &path);
+	map<string, string> get_files_in_directory(const fs::path& path);
 
 	// Member variables
 	ImGui::FileBrowser file_browser;
 	fs::path current_path;
 	fs::path selected_file;
 	string file_content;
-	bool file_loaded;
-	bool file_modified;
-	bool exit;
+	bool b_FileLoaded;
+	bool b_FileModified;
+	bool b_Exit;
 
 	Texture2D file_icon;
 	Texture2D folder_icon;
@@ -79,11 +79,11 @@ private:
 	Texture2D edit_file_icon;
 
 	Texture2D img_texture;
-	bool img_loaded;
+	bool b_ImgLoaded;
 	fs::path loaded_img_path;
 
-	bool show_save_dialog;
-	bool show_error_popup;
+	bool b_ShowSaveDialog;
+	bool b_ShowErrorPopup;
 	string error_message;
 	float side_menu_width;
 
