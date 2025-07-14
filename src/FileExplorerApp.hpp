@@ -59,10 +59,10 @@ private:
 	void RenderFileViewer(float menu_bar_height);
 
 	// Function to format file sizes
-	string format_size(uintmax_t size_in_bytes);
+	string FormatSize(uintmax_t size_in_bytes);
 
 	// Function to get files in a directory
-	map<string, string> get_files_in_directory(const fs::path& path);
+	map<string, string> GetFilesInDirectory(const fs::path& path);
 
 	// Member variables
 	ImGui::FileBrowser file_browser;

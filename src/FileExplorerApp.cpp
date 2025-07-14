@@ -723,7 +723,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 	}
 
 	// Get and display files with better organization
-	auto files = get_files_in_directory(current_path);
+	auto files = GetFilesInDirectory(current_path);
 
 	// Separate directories and files
 	vector<pair<string, string>> directories;
@@ -923,7 +923,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		ImGui::Text("Path: %s", selected_file.parent_path().string().c_str());
 		try
 		{
-			ImGui::Text("Size: %s", format_size(fs::file_size(selected_file)).c_str());
+			ImGui::Text("Size: %s", FormatSize(fs::file_size(selected_file)).c_str());
 		}
 		catch (...)
 		{
@@ -1120,7 +1120,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 }
 
 // Function to format file sizes
-string FileExplorerApp::format_size(uintmax_t size_in_bytes)
+string FileExplorerApp::FormatSize(uintmax_t size_in_bytes)
 {
 	constexpr std::array<const char*, 5> ce_UNITS =
 	{
@@ -1145,7 +1145,7 @@ string FileExplorerApp::format_size(uintmax_t size_in_bytes)
 }
 
 // Function to get files in a directory
-map<string, string> FileExplorerApp::get_files_in_directory(const fs::path& path)
+map<string, string> FileExplorerApp::GetFilesInDirectory(const fs::path& path)
 {
 	map<string, string> files;
 	if (fs::exists(path) && fs::is_directory(path))
@@ -1155,7 +1155,7 @@ map<string, string> FileExplorerApp::get_files_in_directory(const fs::path& path
 			if (entry.is_regular_file())
 			{
 				string filename = entry.path().filename().string();
-				string size_str = format_size(entry.file_size());
+				string size_str = FormatSize(entry.file_size());
 				files.emplace(filename, size_str);
 			}
 			else if (entry.is_directory())
