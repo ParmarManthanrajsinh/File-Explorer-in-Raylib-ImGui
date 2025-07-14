@@ -1007,7 +1007,15 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		}
 
 		// Handle image files
-		else if (find(supported_img_types.begin(), supported_img_types.end(), file_ext) != supported_img_types.end())
+		else if 
+		(
+			find
+			(
+				supported_img_types.begin(), 
+				supported_img_types.end(), 
+				file_ext
+			) != supported_img_types.end()
+		)
 		{
 			// Only load texture if it's a different file or not loaded yet
 			if (!b_ImgLoaded || loaded_img_path != selected_file)
@@ -1041,8 +1049,10 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				// Calculate display size while maintaining aspect ratio
 				float img_width = static_cast<float>(img_texture.width);
 				float img_height = static_cast<float>(img_texture.height);
-				float available_width = ImGui::GetContentRegionAvail().x - 20;	// Leave some margin
-				float available_height = ImGui::GetContentRegionAvail().y - 20; // Leave some margin
+
+				// Leave some margins
+				float available_width = ImGui::GetContentRegionAvail().x - 20; 
+				float available_height = ImGui::GetContentRegionAvail().y - 20; 
 
 				float scale_x = available_width / img_width;
 				float scale_y = available_height / img_height;
@@ -1061,20 +1071,41 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 
 				// Center the image horizontally
 				float cursor_x = (available_width - display_width) * 0.5f;
+
 				if (cursor_x > 0)
+				{
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + cursor_x);
+				}
 
 				// Use scrollable child window for large images
-				ImGui::BeginChild("ImageView", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
-				rlImGuiImageSize(&img_texture, static_cast<int>(display_width), static_cast<int>(display_height));
+				ImGui::BeginChild
+				(
+					"ImageView", 
+					ImVec2(0, 0), 
+					false, 
+					ImGuiWindowFlags_HorizontalScrollbar
+				);
+
+				rlImGuiImageSize
+				(
+					&img_texture, static_cast<int>(display_width), 
+					static_cast<int>(display_height)
+				);
 				ImGui::EndChild();
 			}
 		}
 		else
 		{
-			ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), "File format not supported for preview");
-			ImGui::Text("Extension: %s", file_ext.c_str());
+			ImGui::TextColored
+			(
+				ImVec4
+				(
+					1.0f, 0.6f, 0.0f, 1.0f
+				), 
+				"File format not supported for preview"
+			);
 
+			ImGui::Text("Extension: %s", file_ext.c_str());
 			ImGui::Separator();
 			ImGui::Text("Supported text formats:");
 			ImGui::BulletText("Code files: .cpp, .h, .py, .js, .html, .css, etc.");
@@ -1108,7 +1139,7 @@ string FileExplorerApp::format_size(uintmax_t size_in_bytes)
 	out << std::fixed
 		<< std::setprecision(2)
 		<< size
-		<< ' '
+		<< " "
 		<< ce_UNITS[unit_index];
 	return out.str();
 }
