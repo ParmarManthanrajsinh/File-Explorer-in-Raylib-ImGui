@@ -854,7 +854,9 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 	ImGui::Separator();
 
 	if (files.empty())
+	{
 		ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "Directory is empty");
+	}
 
 	ImGui::EndChild(); // End Navigation
 	ImGui::End();	   // End Explorer window
@@ -866,7 +868,11 @@ void FileExplorerApp::UpdateSideMenuWidth()
 	if (ImGui::IsWindowHovered() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 	{
 		side_menu_width = ImGui::GetMousePos().x;
-		side_menu_width = max(200.0f, min(side_menu_width, GetScreenWidth() * 0.6f));
+		side_menu_width = 
+		max
+		(
+			200.0f, min(side_menu_width, GetScreenWidth() * 0.6f)
+		);
 	}
 }
 
@@ -879,13 +885,38 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		string file_name = selected_file.filename().string();
 		string window_title = file_name;
 		if (b_FileModified)
+		{
 			window_title += " *";
+		}
 
-		ImGui::SetNextWindowPos(ImVec2(side_menu_width + 5, menu_bar_height), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(static_cast<float>(GetScreenWidth() - side_menu_width - 5),
-			static_cast<float>(GetScreenHeight() - menu_bar_height)),
-			ImGuiCond_Always);
-		ImGui::Begin(window_title.c_str(), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+		ImGui::SetNextWindowPos
+		(
+			ImVec2
+			(
+				side_menu_width + 5, 
+				menu_bar_height
+			), 
+			ImGuiCond_Always
+		);
+
+		ImGui::SetNextWindowSize
+		(
+			ImVec2
+			(
+				static_cast<float>(GetScreenWidth() - side_menu_width - 5),
+				static_cast<float>(GetScreenHeight() - menu_bar_height)
+			),
+			ImGuiCond_Always
+		);
+
+		ImGui::Begin
+		(
+			window_title.c_str(), 
+			nullptr, 
+			ImGuiWindowFlags_NoCollapse | 
+			ImGuiWindowFlags_NoMove | 
+			ImGuiWindowFlags_NoResize
+		);
 
 		// File info header
 		ImGui::Text("File: %s", selected_file.filename().string().c_str());
@@ -903,7 +934,15 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		string file_ext = selected_file.extension().string();
 
 		// Handle text files
-		if (find(supported_file_types.begin(), supported_file_types.end(), file_ext) != supported_file_types.end())
+		if 
+		(
+			find
+			(
+				supported_file_types.begin(), 
+				supported_file_types.end(), 
+				file_ext
+			) != supported_file_types.end()
+		)
 		{
 			if (!b_FileLoaded)
 			{
@@ -916,7 +955,10 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 
 					if (fileSize > MAX_BUFFER_SIZE)
 					{
-						error_message = "File too large! Maximum size: " + to_string(MAX_BUFFER_SIZE / (1024 * 1024)) + " MB";
+						error_message = "File too large! Maximum size: " 
+							+ to_string(MAX_BUFFER_SIZE / (1024 * 1024)) 
+							+ " MB";
+
 						b_ShowErrorPopup = true;
 					}
 					else
@@ -946,14 +988,24 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 					s_EditBuffer.resize(file_content.size() + 1024);
 				}
 
-				if (ImGui::InputTextMultiline("##editor", &s_EditBuffer[0], s_EditBuffer.capacity(),
-					ImVec2(-1, -1), ImGuiInputTextFlags_AllowTabInput))
+				if 
+				(
+					ImGui::InputTextMultiline
+					(
+						"##editor", 
+						&s_EditBuffer[0], 
+						s_EditBuffer.capacity(),
+						ImVec2(-1, -1), 
+						ImGuiInputTextFlags_AllowTabInput
+					)
+				)
 				{
 					file_content = s_EditBuffer.c_str(); // Update content
 					b_FileModified = true;
 				}
 			}
 		}
+
 		// Handle image files
 		else if (find(supported_img_types.begin(), supported_img_types.end(), file_ext) != supported_img_types.end())
 		{
