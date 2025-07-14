@@ -17,8 +17,13 @@ FileExplorerApp::FileExplorerApp()
 	edit_file_icon = LoadTexture("assets/icons/edit_file.png");
 
 	// Initialize File Browser
-	file_browser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename |
-		ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoStatusBar);
+	file_browser = ImGui::FileBrowser
+	(
+		ImGuiFileBrowserFlags_SelectDirectory |
+		ImGuiFileBrowserFlags_EnterNewFilename |
+		ImGuiFileBrowserFlags_NoModal |
+		ImGuiFileBrowserFlags_NoStatusBar
+	);
 
 	current_path = "";			// Start with the current working directory
 	selected_file = fs::path(); // To store the selected file path
@@ -38,11 +43,20 @@ FileExplorerApp::FileExplorerApp()
 	error_message.clear();
 	side_menu_width = 300.0f; // Make resizable
 
-	supported_file_types = {
-		".txt", ".cpp", ".h", ".hpp", ".c", ".py", ".js", ".html", ".css",
-		".json", ".md", ".xml", ".yaml", ".ini", ".log", ".bat", ".sh", ".php",
-		".rb", ".go", ".swift", ".ts", ".tsx", ".vue", ".sql", ".pl", ".lua",
-		".r", ".dart", ".scala", ".rs", ".java", ".kt" };
+	supported_file_types =
+	{
+		".txt", ".cpp", ".h",
+		".hpp", ".c", ".py",
+		".js", ".html",".css",
+		".json", ".md", ".xml",
+		".yaml", ".ini", ".log",
+		".bat", ".sh", ".php",
+		".rb", ".go", ".swift",
+		".ts", ".tsx", ".vue",
+		".sql", ".pl", ".lua",
+		".r", ".dart", ".scala",
+		".rs", ".java", ".kt"
+	};
 
 	supported_img_types = {
 		".jpg", ".png", ".bmp" };
@@ -77,11 +91,26 @@ void FileExplorerApp::Run()
 
 		ImGui::GetStyle().FramePadding.y = 6.0f;
 
-		RenderMainMenuBar(sb_Open, sb_Save, sb_CreateNewFolder, sb_CreateNewFile, sb_RenameFile, sb_Delete);
+		RenderMainMenuBar
+		(
+			sb_Open,
+			sb_Save,
+			sb_CreateNewFolder,
+			sb_CreateNewFile,
+			sb_RenameFile,
+			sb_Delete
+		);
 
 		float menu_bar_height = ImGui::GetFrameHeight();
 
-		ApplyShortcuts(sb_Open, sb_Save, sb_CreateNewFolder, sb_CreateNewFile, sb_RenameFile);
+		ApplyShortcuts
+		(
+			sb_Open,
+			sb_Save,
+			sb_CreateNewFolder,
+			sb_CreateNewFile,
+			sb_RenameFile
+		);
 
 		ProcessFileBrowserDialog(sb_Open);
 
@@ -109,7 +138,15 @@ void FileExplorerApp::Run()
 }
 
 // Function to render the main menu bar
-void FileExplorerApp::RenderMainMenuBar(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file, bool& _delete)
+void FileExplorerApp::RenderMainMenuBar
+(
+	bool& open,
+	bool& save,
+	bool& create_new_folder,
+	bool& create_new_file,
+	bool& rename_file,
+	bool& _delete
+)
 {
 	// Main Menu Bar
 	if (ImGui::BeginMainMenuBar())
