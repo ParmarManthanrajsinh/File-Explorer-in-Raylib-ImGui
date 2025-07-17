@@ -30,7 +30,7 @@ After building, run the executable to launch the File Explorer. You can:
 - Use the File menu to open new directories
 - Navigate through directories using the side panel
 - Click on directories to enter them
-- Use ".." to go up one directory level
+- Use "back" to go up one directory level
 - View file sizes in human-readable format
 
 ## Contributing
