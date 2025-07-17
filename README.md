@@ -2,18 +2,6 @@
 
 A modern file explorer application built with C++ using Raylib and Dear ImGui frameworks.
 
-## Features
-
-- Clean and intuitive graphical user interface
-- File system navigation with directory browsing
-- File size display with automatic unit conversion (B, KB, MB, GB, TB)
-- Directory/file differentiation with clear indicators
-- Resizable window support
-- Menu bar with File, Edit, and Help options
-- Side explorer panel with hierarchical navigation
-
-## ScreenShots
-
 ![screenshot](assets/screenshot.png)
 
 ## Dependencies
