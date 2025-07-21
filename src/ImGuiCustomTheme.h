@@ -1,6 +1,7 @@
 #pragma once
 
-inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular.ttf")
+inline void ImCustomTheme(const std::string& path = 
+	"assets/fonts/Roboto-Regular.ttf")
 {
 	// Load custom font
 	ImGuiIO &io = ImGui::GetIO();
@@ -20,9 +21,13 @@ inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular
 	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.24f, 0.24f, 0.24f, 1.0f);
 
 	// button styling
-	style.Colors[ImGuiCol_Button] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);		  // Dark gray
-	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f); // Lighter on hover
-	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);  // Darker when pressed
+	style.Colors[ImGuiCol_Button] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f); // Dark gray
+
+	// Lighter on hover
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f); 
+	
+	// Darker when pressed
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);  
 
 	// Headers
 	style.Colors[ImGuiCol_Header] = ImVec4(0.20f, 0.20f, 0.20f, 1.0f);
@@ -126,7 +131,12 @@ inline void ImCustomTheme(const std::string& path = "assets/fonts/Roboto-Regular
 	style.AntiAliasedFill = true;
 
 	// Resize grip (corner handle)
-	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);		  // Normal
-	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f); // On hover
-	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);  // On active drag
+	style.Colors[ImGuiCol_ResizeGrip] = 
+		ImVec4(0.25f, 0.25f, 0.25f, 1.0f); // Normal
+
+	style.Colors[ImGuiCol_ResizeGripHovered] = 
+		ImVec4(0.35f, 0.35f, 0.35f, 1.0f); // On hover
+
+	style.Colors[ImGuiCol_ResizeGripActive] = 
+		ImVec4(0.15f, 0.15f, 0.15f, 1.0f);  // On active drag
 }
