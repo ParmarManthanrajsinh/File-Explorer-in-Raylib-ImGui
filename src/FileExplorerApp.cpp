@@ -5,6 +5,10 @@ FileExplorerApp::FileExplorerApp()
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(900, 500, "File Explorer");
+	Image img = LoadImage("assets/file_explorer_icon.png");
+	SetWindowIcon(img);
+	UnloadImage(img);
+
 	SetTargetFPS(120);
 
 	rlImGuiSetup(true);
