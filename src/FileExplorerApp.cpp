@@ -164,15 +164,16 @@ void FileExplorerApp::RenderMainMenuBar
 			}
 
 			if
+			(
+				ImGui::MenuItem
 				(
-					ImGui::MenuItem
-					(
-						"Save",
-						"Ctrl+S",
-						false,
-						m_SelectedFile != fs::path() && m_bFileLoaded
-					)
-					)
+					"Save",
+					"Ctrl+S",
+					false,
+					m_SelectedFile != fs::path() 
+					&& m_bFileLoaded
+				)
+			)
 			{
 				b_Save = true;
 			}
