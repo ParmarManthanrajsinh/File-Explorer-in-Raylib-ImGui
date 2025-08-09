@@ -1064,13 +1064,17 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				if (img.data != nullptr)
 				{
 					m_ImgTexture = LoadTextureFromImage(img);
-					UnloadImage(img); // Free the image data, keep only the texture
+
+					// Free the image data, keep only the texture
+					UnloadImage(img); 
 					m_bImgLoaded = true;
 					m_LoadedImgPath = m_SelectedFile;
 				}
 				else
 				{
-					m_ErrorMessage = "Failed to load image: " + m_SelectedFile.filename().string();
+					m_ErrorMessage = "Failed to load image: " 
+									 + m_SelectedFile.filename().string();
+
 					m_bShowErrorPopup = true;
 					m_bImgLoaded = false;
 				}
@@ -1129,7 +1133,8 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 
 				rlImGuiImageSize
 				(
-					&m_ImgTexture, static_cast<int>(display_width), 
+					&m_ImgTexture, 
+					static_cast<int>(display_width), 
 					static_cast<int>(display_height)
 				);
 				ImGui::EndChild();
