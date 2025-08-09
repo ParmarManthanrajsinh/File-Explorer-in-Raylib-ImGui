@@ -887,7 +887,11 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 
 	if (files.empty())
 	{
-		ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "Directory is empty");
+		ImGui::TextColored
+		(
+			ImVec4(0.5f, 0.5f, 0.5f, 1.0f),
+			"Directory is empty"
+		);
 	}
 
 	ImGui::EndChild(); // End Navigation
@@ -897,7 +901,14 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 // Function to update side menu width for resizing
 void FileExplorerApp::UpdateSideMenuWidth()
 {
-	if (ImGui::IsWindowHovered() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+	if 
+	(
+		ImGui::IsWindowHovered() 
+		&& ImGui::IsMouseDragging
+		(
+			ImGuiMouseButton_Left
+		)
+	)
 	{
 		m_SideMenuWidth = ImGui::GetMousePos().x;
 		m_SideMenuWidth = 
@@ -955,7 +966,11 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		ImGui::Text("Path: %s", m_SelectedFile.parent_path().string().c_str());
 		try
 		{
-			ImGui::Text("Size: %s", FormatSize(fs::file_size(m_SelectedFile)).c_str());
+			ImGui::Text
+			(
+				"Size: %s", 
+				FormatSize(fs::file_size(m_SelectedFile)).c_str()
+			);
 		}
 		catch (...)
 		{
