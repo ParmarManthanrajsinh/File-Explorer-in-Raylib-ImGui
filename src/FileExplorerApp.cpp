@@ -1126,10 +1126,11 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 // Function to format file sizes
 string FileExplorerApp::FormatSize(double size_in_bytes)
 {
-	static constexpr std::array<const char*, 5> ce_UNITS =
+	constexpr std::array<const char*, 5> ce_UNITS =
 	{
 		"B", "KB", "MB", "GB", "TB"
 	};
+
 	int unit_index = 0;
 	while (size_in_bytes >= 1024.0f && unit_index < 4)
 	{
@@ -1152,17 +1153,17 @@ map<string, string> FileExplorerApp::GetFilesInDirectory(const fs::path& path)
 	map<string, string> files;
 	if (fs::exists(path) && fs::is_directory(path))
 	{
-		for (const auto& entry : fs::directory_iterator(path))
+		for (const auto& ENTRY : fs::directory_iterator(path))
 		{
-			if (entry.is_regular_file())
+			if (ENTRY.is_regular_file())
 			{
-				string filename = entry.path().filename().string();
-				string size_str = FormatSize(entry.file_size());
+				string filename = ENTRY.path().filename().string();
+				string size_str = FormatSize(ENTRY.file_size());
 				files.emplace(filename, size_str);
 			}
-			else if (entry.is_directory())
+			else if (ENTRY.is_directory())
 			{
-				string dirname = entry.path().filename().string();
+				string dirname = ENTRY.path().filename().string();
 				files.emplace(dirname, "[D]");
 			}
 		}
