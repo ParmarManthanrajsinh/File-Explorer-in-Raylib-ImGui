@@ -330,7 +330,15 @@ void FileExplorerApp::HandleErrorPopup()
 		m_SelectedFile = fs::path();
 	}
 
-	if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	if 
+	(
+		ImGui::BeginPopupModal
+		(
+			"Error", 
+			nullptr, 
+			ImGuiWindowFlags_AlwaysAutoResize
+		)
+	)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); // Red color
 		ImGui::TextWrapped("%s", m_ErrorMessage.c_str());
@@ -398,7 +406,15 @@ void FileExplorerApp::HandleCreateFilePopup(bool& create_new_file)
 		create_new_file = false;
 	}
 
-	if (ImGui::BeginPopupModal("Create File", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	if 
+	(
+		ImGui::BeginPopupModal
+		(
+			"Create File", 
+			nullptr, 
+			ImGuiWindowFlags_AlwaysAutoResize
+		)
+	)
 	{
 		static char s_NewFileName[128] = "";
 		ImGui::InputText("File Name", s_NewFileName, sizeof(s_NewFileName));
@@ -451,7 +467,13 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 		rename_file = false;
 	}
 
-	if (ImGui::BeginPopupModal("Rename", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	if 
+	(
+		ImGui::BeginPopupModal
+		(
+			"Rename", nullptr, ImGuiWindowFlags_AlwaysAutoResize
+		)
+	)
 	{
 		static char s_NewName[128] = "";
 		static bool sb_FirstFrame = true;
@@ -571,7 +593,12 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 		if (ImGui::Button("Cancel"))
 		{
 			// Reset for next use and close popup
-			memset(s_NewName, 0, sizeof(s_NewName));
+			memset
+			(
+				s_NewName, 
+				0, 
+				sizeof(s_NewName)
+			);
 			sb_FirstFrame = true;
 			ImGui::CloseCurrentPopup();
 		}
@@ -636,7 +663,8 @@ void FileExplorerApp::HandleDeletePopup(bool& _delete)
 			}
 			catch (const fs::filesystem_error& ex)
 			{
-				m_ErrorMessage = "Error deleting file/folder: " + string(ex.what());
+				m_ErrorMessage = "Error deleting file/folder: " 
+								 + string(ex.what());
 				m_bShowErrorPopup = true;
 			}
 			ImGui::CloseCurrentPopup();
@@ -665,7 +693,8 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 	(
 		ImVec2
 		(
-			m_SideMenuWidth, static_cast<float>(GetScreenHeight() - menu_bar_height)
+			m_SideMenuWidth, 
+			static_cast<float>(GetScreenHeight() - menu_bar_height)
 		),
 		ImGuiCond_Always
 	);
@@ -978,7 +1007,8 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				}
 				else
 				{
-					m_ErrorMessage = "Could not open file: " + m_SelectedFile.string();
+					m_ErrorMessage = "Could not open file: "
+									 + m_SelectedFile.string();
 				}
 			}
 
@@ -1055,8 +1085,11 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				float img_height = static_cast<float>(m_ImgTexture.height);
 
 				// Leave some margins
-				float available_width = ImGui::GetContentRegionAvail().x - 20; 
-				float available_height = ImGui::GetContentRegionAvail().y - 20; 
+				float available_width = 
+					ImGui::GetContentRegionAvail().x - 20; 
+
+				float available_height = 
+					ImGui::GetContentRegionAvail().y - 20; 
 
 				float scale_x = available_width / img_width;
 				float scale_y = available_height / img_height;
@@ -1069,7 +1102,12 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				float display_width = img_width * scale;
 				float display_height = img_height * scale;
 
-				ImGui::Text("Dimensions: %dx%d pixels", m_ImgTexture.width, m_ImgTexture.height);
+				ImGui::Text
+				(
+					"Dimensions: %dx%d pixels", 
+					m_ImgTexture.width, 
+					m_ImgTexture.height
+				);
 				ImGui::Text("Display Scale: %.2f", scale);
 				ImGui::Separator();
 
@@ -1112,8 +1150,15 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 			ImGui::Text("Extension: %s", file_ext.c_str());
 			ImGui::Separator();
 			ImGui::Text("Supported text formats:");
-			ImGui::BulletText("Code files: .cpp, .h, .py, .js, .html, .css, etc.");
-			ImGui::BulletText("Documents: .txt, .md, .json, .xml, .yaml, etc.");
+			ImGui::BulletText
+			(
+				"Code files: .cpp, .h, .py, .js, .html, .css, etc."
+			);
+
+			ImGui::BulletText
+			(
+				"Documents: .txt, .md, .json, .xml, .yaml, etc."
+			);
 
 			ImGui::Text("Supported image formats:");
 			ImGui::BulletText("Images: .jpg, .png, .bmp");
