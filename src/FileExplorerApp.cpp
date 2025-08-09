@@ -144,12 +144,12 @@ void FileExplorerApp::Run()
 // Function to render the main menu bar
 void FileExplorerApp::RenderMainMenuBar
 (
-	bool& open,
-	bool& save,
-	bool& create_new_folder,
-	bool& create_new_file,
-	bool& rename_file,
-	bool& _delete
+	bool& b_Open,
+	bool& b_Save,
+	bool& b_CreateNewFolder,
+	bool& b_CreateNewFile,
+	bool& b_RenameFile,
+	bool& b_Delete
 )
 {
 	// Main Menu Bar
@@ -159,7 +159,7 @@ void FileExplorerApp::RenderMainMenuBar
 		{
 			if (ImGui::MenuItem("Open Directory", "Ctrl+O", false))
 			{
-				open = true;
+				b_Open = true;
 				m_FileBrowser.Open();
 			}
 
@@ -174,7 +174,7 @@ void FileExplorerApp::RenderMainMenuBar
 					)
 					)
 			{
-				save = true;
+				b_Save = true;
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Escape"))
@@ -187,19 +187,19 @@ void FileExplorerApp::RenderMainMenuBar
 		{
 			if (ImGui::MenuItem("New Folder", "Ctrl+Shift+N"))
 			{
-				create_new_folder = true;
+				b_CreateNewFolder = true;
 			}
 			if (ImGui::MenuItem("New File", "Ctrl+N"))
 			{
-				create_new_file = true;
+				b_CreateNewFile = true;
 			}
 			if (ImGui::MenuItem("Rename", "F2", false))
 			{
-				rename_file = true;
+				b_RenameFile = true;
 			}
 			if (ImGui::MenuItem("Delete"))
 			{
-				_delete = true;
+				b_Delete = true;
 			}
 			ImGui::EndMenu();
 		}
@@ -219,18 +219,18 @@ void FileExplorerApp::RenderMainMenuBar
 // Function to apply keyboard shortcuts
 void FileExplorerApp::ApplyShortcuts
 (
-	bool& open,
-	bool& save,
-	bool& create_new_folder,
-	bool& create_new_file,
-	bool& rename_file
+	bool& b_Open,
+	bool& b_Save,
+	bool& b_CreateNewFolder,
+	bool& b_CreateNewFile,
+	bool& b_RenameFile
 )
 {
 	// Handle keyboard shortcuts
 	if (ImGui::IsKeyPressed(ImGuiKey_O)
 		&& ImGui::GetIO().KeyCtrl)
 	{
-		open = true;
+		b_Open = true;
 		m_FileBrowser.Open();
 	}
 
@@ -239,38 +239,38 @@ void FileExplorerApp::ApplyShortcuts
 		&& m_SelectedFile != fs::path()
 		&& m_bFileLoaded)
 	{
-		save = true;
+		b_Save = true;
 	}
 
 	if (ImGui::IsKeyPressed(ImGuiKey_N)
 		&& ImGui::GetIO().KeyCtrl
 		&& !ImGui::GetIO().KeyShift)
 	{
-		create_new_file = true;
+		b_CreateNewFile = true;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_N)
 		&& ImGui::GetIO().KeyCtrl
 		&& ImGui::GetIO().KeyShift)
 	{
-		create_new_folder = true;
+		b_CreateNewFolder = true;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_F2))
 	{
-		rename_file = true;
+		b_RenameFile = true;
 	}
 }
 
 // Function to process the file browser dialog
-void FileExplorerApp::ProcessFileBrowserDialog(bool& open)
+void FileExplorerApp::ProcessFileBrowserDialog(bool& b_Open)
 {
 	// File Browser Dialog
-	if (open)
+	if (b_Open)
 	{
 		m_FileBrowser.Display();
 
 		if (m_FileBrowser.HasSelected())
 		{
-			open = false;
+			b_Open = false;
 			fs::path new_path = m_FileBrowser.GetDirectory();
 			if (fs::exists(new_path) && fs::is_directory(new_path))
 			{
@@ -295,10 +295,10 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& open)
 }
 
 // Function to process saving a file
-void FileExplorerApp::ProcessSaveFile(bool& save)
+void FileExplorerApp::ProcessSaveFile(bool& b_Save)
 {
 	// Save File
-	if (save
+	if (b_Save
 		&& m_SelectedFile != fs::path()
 		&& m_bFileLoaded)
 	{
@@ -308,13 +308,13 @@ void FileExplorerApp::ProcessSaveFile(bool& save)
 			out_file.write(m_FileContent.data(), m_FileContent.size());
 			out_file.close();
 			m_bFileModified = false;
-			save = false;
+			b_Save = false;
 		}
 		else
 		{
 			m_ErrorMessage = "Could not save file: " + m_SelectedFile.string();
 			m_bShowErrorPopup = true;
-			save = false;
+			b_Save = false;
 		}
 	}
 }
@@ -354,13 +354,13 @@ void FileExplorerApp::HandleErrorPopup()
 }
 
 // Function to handle the "Create Folder" popup
-void FileExplorerApp::HandleCreateFolderPopup(bool& create_new_folder)
+void FileExplorerApp::HandleCreateFolderPopup(bool& b_CreateNewFolder)
 {
 	// New Folder Popup
-	if (create_new_folder)
+	if (b_CreateNewFolder)
 	{
 		ImGui::OpenPopup("Create Folder");
-		create_new_folder = false;
+		b_CreateNewFolder = false;
 	}
 
 	if (ImGui::BeginPopupModal("Create Folder", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -397,13 +397,13 @@ void FileExplorerApp::HandleCreateFolderPopup(bool& create_new_folder)
 }
 
 // Function to handle the "Create File" popup
-void FileExplorerApp::HandleCreateFilePopup(bool& create_new_file)
+void FileExplorerApp::HandleCreateFilePopup(bool& b_CreateNewFile)
 {
 	// New File Popup
-	if (create_new_file)
+	if (b_CreateNewFile)
 	{
 		ImGui::OpenPopup("Create File");
-		create_new_file = false;
+		b_CreateNewFile = false;
 	}
 
 	if 
@@ -458,13 +458,13 @@ void FileExplorerApp::HandleCreateFilePopup(bool& create_new_file)
 }
 
 // Function to handle the "Rename" popup
-void FileExplorerApp::HandleRenamePopup(bool& rename_file)
+void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 {
 	// Rename File Popup
-	if (rename_file)
+	if (b_RenameFile)
 	{
 		ImGui::OpenPopup("Rename");
-		rename_file = false;
+		b_RenameFile = false;
 	}
 
 	if 
@@ -608,13 +608,13 @@ void FileExplorerApp::HandleRenamePopup(bool& rename_file)
 }
 
 // Function to handle the "Delete" popup
-void FileExplorerApp::HandleDeletePopup(bool& _delete)
+void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 {
 	// Delete File and Folder Popup
-	if (_delete)
+	if (b_Delete)
 	{
 		ImGui::OpenPopup("Delete");
-		_delete = false;
+		b_Delete = false;
 	}
 
 	if (ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -680,7 +680,7 @@ void FileExplorerApp::HandleDeletePopup(bool& _delete)
 }
 
 // Function to render the explorer side panel
-void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
+void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 {
 	// Explorer Side Panel (Resizable)
 	ImGui::SetNextWindowPos
@@ -714,7 +714,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& open)
 		ImGui::Text("No folder opened\n");
 		if (ImGui::Button("Open Folder", ImVec2(-1, 0)))
 		{
-			open = true;
+			b_Open = true;
 			m_FileBrowser.Open();
 		}
 		ImGui::End();
