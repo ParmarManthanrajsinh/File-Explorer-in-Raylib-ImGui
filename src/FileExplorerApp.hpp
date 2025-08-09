@@ -1,16 +1,15 @@
 #pragma once
 
-#include <rlImGui.h>
-#include <imgui.h>
-#include <imfilebrowser.h>
-#include <filesystem>
-#include <map>
-#include <fstream>
 #include <array>
+#include <filesystem>
+#include <fstream>
+#include <imgui.h>
+#include <rlImGui.h>
+#include <imfilebrowser.h>
+#include <map>
 #include <string>
 #include <vector>
 using namespace std;
-
 namespace fs = std::filesystem;
 constexpr int ce_MAXBUFFERSIZE = 5 * 1024 * 1024; // 5MB buffer
 
@@ -30,7 +29,7 @@ private:
 		bool& b_CreateNewFolder, 
 		bool& b_CreateNewFile, 
 		bool& b_RenameFile, 
-		bool& _delete
+		bool& b_Delete
 	);
 
 	// Function to apply keyboard shortcuts
@@ -62,7 +61,7 @@ private:
 	void HandleRenamePopup(bool& b_RenameFile);
 
 	// Function to handle the "Delete" popup
-	void HandleDeletePopup(bool& _delete);
+	void HandleDeletePopup(bool& b_Delete);
 
 	// Function to render the explorer side panel
 	void RenderExplorerPanel(float menu_bar_height, bool& b_Open);
@@ -80,28 +79,28 @@ private:
 	map<string, string> GetFilesInDirectory(const fs::path& path);
 
 	// Member variables
-	ImGui::FileBrowser file_browser;
+	ImGui::FileBrowser m_FileBrowser;
 	fs::path current_path;
-	fs::path selected_file;
-	string file_content;
-	bool b_FileLoaded;
-	bool b_FileModified;
-	bool b_Exit;
+	fs::path m_SelectedFile;
+	string m_FileContent;
+	bool m_bFileLoaded;
+	bool m_bFileModified;
+	bool m_bExit;
 
-	Texture2D file_icon;
-	Texture2D folder_icon;
-	Texture2D img_icon;
-	Texture2D edit_file_icon;
+	Texture2D m_FileIcon;
+	Texture2D m_FolderIcon;
+	Texture2D m_ImgIcon;
+	Texture2D m_EditFileIcon;
 
-	Texture2D img_texture;
-	bool b_ImgLoaded;
-	fs::path loaded_img_path;
+	Texture2D m_ImgTexture;
+	bool m_bImgLoaded;
+	fs::path m_LoadedImgPath;
 
-	bool b_ShowSaveDialog;
-	bool b_ShowErrorPopup;
-	string error_message;
-	float side_menu_width;
+	bool m_bShowSaveDialog;
+	bool m_bShowErrorPopup;
+	string m_ErrorMessage;
+	float m_SideMenuWidth;
 
-	array<string, 33> supported_file_types;
-	array<string, 3> supported_img_types;
+	array<string, 33> m_SupportedFileTypes;
+	array<string, 3> m_SupportedImgTypes;
 };
