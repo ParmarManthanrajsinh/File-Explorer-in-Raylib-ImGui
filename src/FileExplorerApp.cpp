@@ -311,7 +311,9 @@ void FileExplorerApp::ProcessSaveFile(bool& b_Save)
 		}
 		else
 		{
-			m_ErrorMessage = "Could not save file: " + m_SelectedFile.string();
+			m_ErrorMessage = 
+				"Could not save file: " + m_SelectedFile.string();
+			
 			m_bShowErrorPopup = true;
 			b_Save = false;
 		}
@@ -416,7 +418,12 @@ void FileExplorerApp::HandleCreateFilePopup(bool& b_CreateNewFile)
 	)
 	{
 		static char s_NewFileName[128] = "";
-		ImGui::InputText("File Name", s_NewFileName, sizeof(s_NewFileName));
+		ImGui::InputText
+		(
+			"File Name", 
+			s_NewFileName, 
+			sizeof(s_NewFileName)
+		);
 
 		if (ImGui::Button("Create"))
 		{
@@ -434,8 +441,9 @@ void FileExplorerApp::HandleCreateFilePopup(bool& b_CreateNewFile)
 				}
 				else
 				{
-					m_ErrorMessage = "Could not create file: " + new_file_path.string();
-					m_bShowErrorPopup = true;
+					m_ErrorMessage = "Could not create file: " 
+						+ new_file_path.string();
+						m_bShowErrorPopup = true;
 				}
 			}
 			else
@@ -562,12 +570,12 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 						m_bFileModified = false;
 						m_FileContent.clear();
 					}
-					catch (const fs::filesystem_error& ex)
+					catch (const fs::filesystem_error& EX)
 					{
 						m_ErrorMessage = string("Error renaming ")
 							+ (b_IsDir ? "folder" : "file")
 							+ ": "
-							+ ex.what();
+							+ EX.what();
 
 						m_bShowErrorPopup = true;
 					}
@@ -722,7 +730,14 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 
 	// Current path display with better formatting
 	ImGui::Text("Current Directory:");
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+	ImGui::PushStyleColor
+	(
+		ImGuiCol_ChildBg, 
+		ImVec4
+		(
+			0.1f, 0.1f, 0.1f, 1.0f
+		)
+	);
 
 	ImGui::BeginChild("PathDisplay", ImVec2(0, 40), true);
 	ImGui::Text("%s", current_path.filename().string().c_str());
@@ -772,11 +787,21 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 	// Display directories first
 	if (!directories.empty())
 	{
-		ImGui::TextColored(ImVec4(0.7f, 0.7f, 5.0f, 1.0f), "Directories:");
-		for (const auto& dir : directories)
+		ImGui::TextColored
+		(
+			ImVec4
+			(
+				0.7f, 0.7f, 5.0f, 1.0f
+			), 
+			"Directories:"
+		);
+		for (const auto& DIR : directories)
 		{
-			string label = dir.first;
-			bool b_IsSelected = (m_SelectedFile == current_path / dir.first);
+			string label = DIR.first;
+			bool b_IsSelected = 
+			(
+				m_SelectedFile == current_path / DIR.first
+			);
 
 			// Start a group to keep icon and text together
 			ImGui::BeginGroup();
@@ -786,12 +811,19 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 			ImGui::SameLine();
 
 			ImVec2 cursor_pos = ImGui::GetCursorPos();
-			ImGui::SetCursorPos(ImVec2(cursor_pos.x - 6.0f, cursor_pos.y + 6.0f));
+			ImGui::SetCursorPos
+			(
+				ImVec2
+				(
+					cursor_pos.x - 6.0f, 
+					cursor_pos.y + 6.0f
+				)
+			);
 
 			// Then draw the selectable
 			if (ImGui::Selectable(label.c_str(), b_IsSelected))
 			{
-				current_path /= dir.first;
+				current_path /= DIR.first;
 				// Clean up any loaded resources
 				if (m_bImgLoaded && m_ImgTexture.id != 0)
 				{
@@ -857,7 +889,14 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 
 			// Add padding if needed
 			ImVec2 cursor_pos = ImGui::GetCursorPos();
-			ImGui::SetCursorPos(ImVec2(cursor_pos.x - 6.0f, cursor_pos.y + 6.0f));
+			ImGui::SetCursorPos
+			(
+				ImVec2
+				(
+					cursor_pos.x - 6.0f, 
+					cursor_pos.y + 6.0f
+				)
+			);
 
 			// Then draw the selectable
 			if (ImGui::Selectable(label.c_str(), b_IsSelected))
@@ -914,7 +953,12 @@ void FileExplorerApp::UpdateSideMenuWidth()
 		m_SideMenuWidth = 
 		max
 		(
-			200.0f, min(m_SideMenuWidth, GetScreenWidth() * 0.6f)
+			200.0f, 
+			min
+			(
+				m_SideMenuWidth, 
+				GetScreenWidth() * 0.6f
+			)
 		);
 	}
 }
