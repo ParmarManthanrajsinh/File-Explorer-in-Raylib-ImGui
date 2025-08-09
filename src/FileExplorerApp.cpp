@@ -1131,7 +1131,7 @@ string FileExplorerApp::FormatSize(double size_in_bytes)
 		"B", "KB", "MB", "GB", "TB"
 	};
 
-	int unit_index = 0;
+	uint8_t unit_index = 0;
 	while (size_in_bytes >= 1024.0f && unit_index < 4)
 	{
 		size_in_bytes /= 1024.0f;
