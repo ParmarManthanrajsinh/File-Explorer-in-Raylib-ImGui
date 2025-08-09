@@ -28,16 +28,16 @@ FileExplorerApp::FileExplorerApp()
 	);
 
 	current_path = "";			// Start with the current working directory
-	m_SelectedFile = fs::path(); // To store the selected file path
+	m_SelectedFile = fs::path();// To store the selected file path
 	m_FileContent.clear();		// Store file content for editing
 	m_bFileLoaded = false;		// Track if file is loaded
-	m_bFileModified = false;		// Track if file has been modified
+	m_bFileModified = false;	// Track if file has been modified
 	m_bExit = false;
 
 	// Image handling variables
-	m_ImgTexture = { 0 };			  // Initialize to empty texture
-	m_bImgLoaded = false;			  // Track if image is loaded
-	m_LoadedImgPath = fs::path(); // Track which image is currently loaded
+	m_ImgTexture = { 0 };			// Initialize to empty texture
+	m_bImgLoaded = false;			// Track if image is loaded
+	m_LoadedImgPath = fs::path();	// Track which image is currently loaded
 
 	// UI state variables
 	m_bShowSaveDialog = false;
