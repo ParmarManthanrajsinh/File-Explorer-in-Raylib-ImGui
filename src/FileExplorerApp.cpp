@@ -304,7 +304,11 @@ void FileExplorerApp::ProcessSaveFile(bool& b_Save)
 		ofstream out_file(m_SelectedFile, ios::out | ios::binary);
 		if (out_file.is_open())
 		{
-			out_file.write(m_FileContent.data(), m_FileContent.size());
+			out_file.write
+			(
+				m_FileContent.data(), 
+				m_FileContent.size()
+			);
 			out_file.close();
 			m_bFileModified = false;
 			b_Save = false;
@@ -341,7 +345,8 @@ void FileExplorerApp::HandleErrorPopup()
 		)
 	)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); // Red color
+		// Red color
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); 
 		ImGui::TextWrapped("%s", m_ErrorMessage.c_str());
 		ImGui::PopStyleColor();
 
@@ -364,7 +369,15 @@ void FileExplorerApp::HandleCreateFolderPopup(bool& b_CreateNewFolder)
 		b_CreateNewFolder = false;
 	}
 
-	if (ImGui::BeginPopupModal("Create Folder", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	if 
+	(
+		ImGui::BeginPopupModal
+		(
+			"Create Folder", 
+			nullptr, 
+			ImGuiWindowFlags_AlwaysAutoResize
+		)
+	)
 	{
 		static char s_FolderName[128] = "";
 		ImGui::InputText("Folder Name", s_FolderName, sizeof(s_FolderName));
@@ -375,7 +388,7 @@ void FileExplorerApp::HandleCreateFolderPopup(bool& b_CreateNewFolder)
 			{
 				fs::create_directory(new_folder_path);
 				current_path = new_folder_path; // Change to the new folder
-				m_SelectedFile = fs::path();		// Reset selected file
+				m_SelectedFile = fs::path();	// Reset selected file
 				m_bFileLoaded = false;
 				m_bFileModified = false;
 				m_FileContent.clear();
