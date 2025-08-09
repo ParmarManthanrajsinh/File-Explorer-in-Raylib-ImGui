@@ -423,10 +423,10 @@ void FileExplorerApp::HandleCreateFilePopup(bool& b_CreateNewFile)
 			fs::path new_file_path = current_path / s_NewFileName;
 			if (!fs::exists(new_file_path))
 			{
-				ofstream file(new_file_path);
-				if (file.is_open())
+				ofstream FILE(new_file_path);
+				if (FILE.is_open())
 				{
-					file.close();
+					FILE.close();
 					m_SelectedFile = new_file_path;
 					m_bFileLoaded = false;
 					m_bFileModified = false;
@@ -761,12 +761,12 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 	vector<pair<string, string>> directories;
 	vector<pair<string, string>> regular_files;
 
-	for (const auto& file : files)
+	for (const auto& FILE : files)
 	{
-		if (file.second == "[D]")
-			directories.emplace_back(file);
+		if (FILE.second == "[D]")
+			directories.emplace_back(FILE);
 		else
-			regular_files.emplace_back(file);
+			regular_files.emplace_back(FILE);
 	}
 
 	// Display directories first
@@ -813,12 +813,12 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 	if (!regular_files.empty())
 	{
 		ImGui::TextColored(ImVec4(0.7f, 1.0f, 0.7f, 1.0f), "Files:");
-		for (const auto& file : regular_files)
+		for (const auto& FILE : regular_files)
 		{
-			fs::path file_path = current_path / file.first;
+			fs::path file_path = current_path / FILE.first;
 			bool b_IsSelected = (m_SelectedFile == file_path);
 			Texture2D icon = m_FileIcon;
-			string ext = fs::path(file.first).extension().string();
+			string ext = fs::path(FILE.first).extension().string();
 
 			if
 			(
@@ -846,7 +846,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 				icon = m_EditFileIcon;
 			}
 
-			string label = file.first + " (" + file.second + ")";
+			string label = FILE.first + " (" + FILE.second + ")";
 
 			// Start a group to keep icon and text together
 			ImGui::BeginGroup();
@@ -993,12 +993,12 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 		{
 			if (!m_bFileLoaded)
 			{
-				ifstream file(m_SelectedFile, ios::in | ios::binary);
-				if (file.is_open())
+				ifstream FILE(m_SelectedFile, ios::in | ios::binary);
+				if (FILE.is_open())
 				{
-					file.seekg(0, ios::end);
-					size_t fileSize = file.tellg();
-					file.seekg(0, ios::beg);
+					FILE.seekg(0, ios::end);
+					size_t fileSize = FILE.tellg();
+					FILE.seekg(0, ios::beg);
 
 					if (fileSize > ce_MAXBUFFERSIZE)
 					{
@@ -1011,13 +1011,13 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 					else
 					{
 						m_FileContent.resize(fileSize + 1024); // Extra buffer for editing
-						file.read(&m_FileContent[0], fileSize);
+						FILE.read(&m_FileContent[0], fileSize);
 						m_FileContent[fileSize] = '\0'; // Null terminate
 						m_FileContent.resize(fileSize);
 						m_bFileLoaded = true;
 						m_bFileModified = false;
 					}
-					file.close();
+					FILE.close();
 				}
 				else
 				{
