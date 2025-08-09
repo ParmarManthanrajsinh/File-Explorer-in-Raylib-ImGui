@@ -1143,7 +1143,8 @@ string FileExplorerApp::FormatSize(uintmax_t size_in_bytes)
 	out << std::fixed
 		<< std::setprecision(2)
 		<< size
-		<< " " << ce_UNITS.at(unit_index);
+		<< " " 
+		<< ce_UNITS.at(unit_index);
 	return out.str();
 }
 
