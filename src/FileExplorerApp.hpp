@@ -1,18 +1,17 @@
 #pragma once
 
-#include <rlImGui.h>
-#include <imgui.h>
-#include <imfilebrowser.h>
-#include <filesystem>
-#include <map>
-#include <fstream>
 #include <array>
+#include <filesystem>
+#include <fstream>
+#include <imgui.h>
+#include <rlImGui.h>
+#include <imfilebrowser.h>
+#include <map>
 #include <string>
 #include <vector>
 using namespace std;
-
 namespace fs = std::filesystem;
-#define MAX_BUFFER_SIZE ((int)5 * (int)1024 * (int)1024) // 5MB buffer
+constexpr int ce_MAXBUFFERSIZE = 5 * 1024 * 1024; // 5MB buffer
 
 class FileExplorerApp
 {
@@ -23,34 +22,49 @@ public:
 
 private:
 	// Function to render the main menu bar
-	void RenderMainMenuBar(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file, bool& _delete);
+	void RenderMainMenuBar
+	(
+		bool& b_Open, 
+		bool& b_Save, 
+		bool& b_CreateNewFolder, 
+		bool& b_CreateNewFile, 
+		bool& b_RenameFile, 
+		bool& b_Delete
+	);
 
 	// Function to apply keyboard shortcuts
-	void ApplyShortcuts(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file);
+	void ApplyShortcuts
+	(
+		bool& b_Open, 
+		bool& b_Save, 
+		bool& b_CreateNewFolder, 
+		bool& b_CreateNewFile, 
+		bool& b_RenameFile
+	);
 
 	// Function to process the file browser dialog
-	void ProcessFileBrowserDialog(bool& open);
+	void ProcessFileBrowserDialog(bool& b_Open);
 
 	// Function to process saving a file
-	void ProcessSaveFile(bool& save);
+	void ProcessSaveFile(bool& b_Save);
 
 	// Function to handle error popups
 	void HandleErrorPopup();
 
 	// Function to handle the "Create Folder" popup
-	void HandleCreateFolderPopup(bool& create_new_folder);
+	void HandleCreateFolderPopup(bool& b_CreateNewFolder);
 
 	// Function to handle the "Create File" popup
-	void HandleCreateFilePopup(bool& create_new_file);
+	void HandleCreateFilePopup(bool& b_CreateNewFile);
 
 	// Function to handle the "Rename" popup
-	void HandleRenamePopup(bool& rename_file);
+	void HandleRenamePopup(bool& b_RenameFile);
 
 	// Function to handle the "Delete" popup
-	void HandleDeletePopup(bool& _delete);
+	void HandleDeletePopup(bool& b_Delete);
 
 	// Function to render the explorer side panel
-	void RenderExplorerPanel(float menu_bar_height, bool& open);
+	void RenderExplorerPanel(float menu_bar_height, bool& b_Open);
 
 	// Function to update side menu width for resizing
 	void UpdateSideMenuWidth();
@@ -59,34 +73,34 @@ private:
 	void RenderFileViewer(float menu_bar_height);
 
 	// Function to format file sizes
-	string FormatSize(uintmax_t size_in_bytes);
+	string FormatSize(double size_in_bytes);
 
 	// Function to get files in a directory
 	map<string, string> GetFilesInDirectory(const fs::path& path);
 
 	// Member variables
-	ImGui::FileBrowser file_browser;
+	ImGui::FileBrowser m_FileBrowser;
 	fs::path current_path;
-	fs::path selected_file;
-	string file_content;
-	bool b_FileLoaded;
-	bool b_FileModified;
-	bool b_Exit;
+	fs::path m_SelectedFile;
+	string m_FileContent;
+	bool m_bFileLoaded;
+	bool m_bFileModified;
+	bool m_bExit;
 
-	Texture2D file_icon;
-	Texture2D folder_icon;
-	Texture2D img_icon;
-	Texture2D edit_file_icon;
+	Texture2D m_FileIcon;
+	Texture2D m_FolderIcon;
+	Texture2D m_ImgIcon;
+	Texture2D m_EditFileIcon;
 
-	Texture2D img_texture;
-	bool b_ImgLoaded;
-	fs::path loaded_img_path;
+	Texture2D m_ImgTexture;
+	bool m_bImgLoaded;
+	fs::path m_LoadedImgPath;
 
-	bool b_ShowSaveDialog;
-	bool b_ShowErrorPopup;
-	string error_message;
-	float side_menu_width;
+	bool m_bShowSaveDialog;
+	bool m_bShowErrorPopup;
+	string m_ErrorMessage;
+	float m_SideMenuWidth;
 
-	array<string, 33> supported_file_types;
-	array<string, 3> supported_img_types;
+	array<string, 33> m_SupportedFileTypes;
+	array<string, 3> m_SupportedImgTypes;
 };
