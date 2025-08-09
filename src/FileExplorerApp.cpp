@@ -1124,25 +1124,23 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 }
 
 // Function to format file sizes
-string FileExplorerApp::FormatSize(uintmax_t size_in_bytes)
+string FileExplorerApp::FormatSize(double size_in_bytes)
 {
 	static constexpr std::array<const char*, 5> ce_UNITS =
 	{
 		"B", "KB", "MB", "GB", "TB"
 	};
 	int unit_index = 0;
-	double size = static_cast<double>(size_in_bytes);
-
-	while (size >= 1024.0f && unit_index < 4)
+	while (size_in_bytes >= 1024.0f && unit_index < 4)
 	{
-		size /= 1024.0f;
+		size_in_bytes /= 1024.0f;
 		unit_index++;
 	}
 
 	std::ostringstream out;
 	out << std::fixed
 		<< std::setprecision(2)
-		<< size
+		<< size_in_bytes
 		<< " " 
 		<< ce_UNITS.at(unit_index);
 	return out.str();

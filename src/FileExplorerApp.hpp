@@ -73,7 +73,7 @@ private:
 	void RenderFileViewer(float menu_bar_height);
 
 	// Function to format file sizes
-	string FormatSize(uintmax_t size_in_bytes);
+	string FormatSize(double size_in_bytes);
 
 	// Function to get files in a directory
 	map<string, string> GetFilesInDirectory(const fs::path& path);
