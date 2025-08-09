@@ -957,10 +957,10 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 					size_t fileSize = file.tellg();
 					file.seekg(0, ios::beg);
 
-					if (fileSize > MAX_BUFFER_SIZE)
+					if (fileSize > ce_MAXBUFFERSIZE)
 					{
 						error_message = "File too large! Maximum size: " 
-							+ to_string(MAX_BUFFER_SIZE / (1024 * 1024)) 
+							+ to_string(ce_MAXBUFFERSIZE / (1024 * 1024)) 
 							+ " MB";
 
 						b_ShowErrorPopup = true;

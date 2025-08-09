@@ -12,7 +12,7 @@
 using namespace std;
 
 namespace fs = std::filesystem;
-#define MAX_BUFFER_SIZE ((int)5 * (int)1024 * (int)1024) // 5MB buffer
+constexpr int ce_MAXBUFFERSIZE = 5 * 1024 * 1024; // 5MB buffer
 
 class FileExplorerApp
 {
@@ -23,34 +23,49 @@ public:
 
 private:
 	// Function to render the main menu bar
-	void RenderMainMenuBar(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file, bool& _delete);
+	void RenderMainMenuBar
+	(
+		bool& b_Open, 
+		bool& b_Save, 
+		bool& b_CreateNewFolder, 
+		bool& b_CreateNewFile, 
+		bool& b_RenameFile, 
+		bool& _delete
+	);
 
 	// Function to apply keyboard shortcuts
-	void ApplyShortcuts(bool& open, bool& save, bool& create_new_folder, bool& create_new_file, bool& rename_file);
+	void ApplyShortcuts
+	(
+		bool& b_Open, 
+		bool& b_Save, 
+		bool& b_CreateNewFolder, 
+		bool& b_CreateNewFile, 
+		bool& b_RenameFile
+	);
 
 	// Function to process the file browser dialog
-	void ProcessFileBrowserDialog(bool& open);
+	void ProcessFileBrowserDialog(bool& b_Open);
 
 	// Function to process saving a file
-	void ProcessSaveFile(bool& save);
+	void ProcessSaveFile(bool& b_Save);
 
 	// Function to handle error popups
 	void HandleErrorPopup();
 
 	// Function to handle the "Create Folder" popup
-	void HandleCreateFolderPopup(bool& create_new_folder);
+	void HandleCreateFolderPopup(bool& b_CreateNewFolder);
 
 	// Function to handle the "Create File" popup
-	void HandleCreateFilePopup(bool& create_new_file);
+	void HandleCreateFilePopup(bool& b_CreateNewFile);
 
 	// Function to handle the "Rename" popup
-	void HandleRenamePopup(bool& rename_file);
+	void HandleRenamePopup(bool& b_RenameFile);
 
 	// Function to handle the "Delete" popup
 	void HandleDeletePopup(bool& _delete);
 
 	// Function to render the explorer side panel
-	void RenderExplorerPanel(float menu_bar_height, bool& open);
+	void RenderExplorerPanel(float menu_bar_height, bool& b_Open);
 
 	// Function to update side menu width for resizing
 	void UpdateSideMenuWidth();
