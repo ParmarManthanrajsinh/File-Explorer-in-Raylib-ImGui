@@ -60,8 +60,10 @@ FileExplorerApp::FileExplorerApp()
 		".rs", ".java", ".kt"
 	};
 
-	m_SupportedImgTypes = {
-		".jpg", ".png", ".bmp" };
+	m_SupportedImgTypes = 
+	{
+		".jpg", ".png", ".bmp" 
+	};
 }
 
 FileExplorerApp::~FileExplorerApp()
@@ -102,7 +104,6 @@ void FileExplorerApp::Run()
 			sb_RenameFile,
 			sb_Delete
 		);
-
 		float menu_bar_height = ImGui::GetFrameHeight();
 
 		ApplyShortcuts
@@ -657,7 +658,8 @@ void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 		{
 			ImGui::Text
 			(
-				"Are you sure you want to delete the current directory '%s'?", current_path.filename().string().c_str()
+				"Are you sure you want to delete the current directory '%s'?", 
+				current_path.filename().string().c_str()
 			);
 		}
 
