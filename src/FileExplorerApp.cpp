@@ -5,7 +5,7 @@ FileExplorerApp::FileExplorerApp()
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(900, 500, "File Explorer");
-	Image img = LoadImage("assets/file_explorer_icon.png");
+	Image img = LoadImage("assets/Icons/Logo.png");
 	SetWindowIcon(img);
 	UnloadImage(img);
 	SetTargetFPS(120);
@@ -21,9 +21,9 @@ FileExplorerApp::FileExplorerApp()
 	// Initialize File Browser
 	m_FileBrowser = ImGui::FileBrowser
 	(
-		ImGuiFileBrowserFlags_SelectDirectory |
+		ImGuiFileBrowserFlags_SelectDirectory  |
 		ImGuiFileBrowserFlags_EnterNewFilename |
-		ImGuiFileBrowserFlags_NoModal |
+		ImGuiFileBrowserFlags_NoModal          |
 		ImGuiFileBrowserFlags_NoStatusBar
 	);
 
@@ -60,8 +60,10 @@ FileExplorerApp::FileExplorerApp()
 		".rs", ".java", ".kt"
 	};
 
-	m_SupportedImgTypes = {
-		".jpg", ".png", ".bmp" };
+	m_SupportedImgTypes = 
+	{
+		".jpg", ".png", ".bmp" 
+	};
 }
 
 FileExplorerApp::~FileExplorerApp()
@@ -102,7 +104,6 @@ void FileExplorerApp::Run()
 			sb_RenameFile,
 			sb_Delete
 		);
-
 		float menu_bar_height = ImGui::GetFrameHeight();
 
 		ApplyShortcuts
@@ -139,7 +140,6 @@ void FileExplorerApp::Run()
 	}
 }
 
-// Function to render the main menu bar
 void FileExplorerApp::RenderMainMenuBar
 (
 	bool& b_Open,
@@ -150,7 +150,6 @@ void FileExplorerApp::RenderMainMenuBar
 	bool& b_Delete
 )
 {
-	// Main Menu Bar
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
@@ -455,8 +454,8 @@ void FileExplorerApp::HandleCreateFilePopup(bool& b_CreateNewFile)
 				else
 				{
 					m_ErrorMessage = "Could not create file: " 
-						+ new_file_path.string();
-						m_bShowErrorPopup = true;
+					+ new_file_path.string();
+					m_bShowErrorPopup = true;
 				}
 			}
 			else
@@ -586,9 +585,9 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 					catch (const fs::filesystem_error& EX)
 					{
 						m_ErrorMessage = string("Error renaming ")
-							+ (b_IsDir ? "folder" : "file")
-							+ ": "
-							+ EX.what();
+						+ (b_IsDir ? "folder" : "file")
+						+ ": "
+						+ EX.what();
 
 						m_bShowErrorPopup = true;
 					}
@@ -596,8 +595,8 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 				else
 				{
 					m_ErrorMessage =
-						string(b_IsDir ? "Folder" : "File")
-						+ " already exists!";
+					string(b_IsDir ? "Folder" : "File")
+					+ " already exists!";
 
 					m_bShowErrorPopup = true;
 				}
@@ -657,7 +656,8 @@ void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 		{
 			ImGui::Text
 			(
-				"Are you sure you want to delete the current directory '%s'?", current_path.filename().string().c_str()
+				"Are you sure you want to delete the current directory '%s'?", 
+				current_path.filename().string().c_str()
 			);
 		}
 
@@ -724,7 +724,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 		"Explorer",
 		nullptr,
 		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoMove     |
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoResize
 	);
@@ -791,10 +791,8 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 
 	for (const auto& FILE : files)
 	{
-		if (FILE.second == "[D]")
-			directories.emplace_back(FILE);
-		else
-			regular_files.emplace_back(FILE);
+		(FILE.second == "[D]") ? directories.emplace_back(FILE) 
+							   : regular_files.emplace_back(FILE);
 	}
 
 	// Display directories first
@@ -1014,13 +1012,21 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 			window_title.c_str(), 
 			nullptr, 
 			ImGuiWindowFlags_NoCollapse | 
-			ImGuiWindowFlags_NoMove | 
+			ImGuiWindowFlags_NoMove     | 
 			ImGuiWindowFlags_NoResize
 		);
 
 		// File info header
-		ImGui::Text("File: %s", m_SelectedFile.filename().string().c_str());
-		ImGui::Text("Path: %s", m_SelectedFile.parent_path().string().c_str());
+		ImGui::Text
+		(
+			"File: %s", 
+			m_SelectedFile.filename().string().c_str()
+		);
+		ImGui::Text
+		(
+			"Path: %s", 
+			m_SelectedFile.parent_path().string().c_str()
+		);
 		try
 		{
 			ImGui::Text
@@ -1060,8 +1066,8 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 					if (fileSize > ce_MAXBUFFERSIZE)
 					{
 						m_ErrorMessage = "File too large! Maximum size: " 
-							+ to_string(ce_MAXBUFFERSIZE / (1024 * 1024)) 
-							+ " MB";
+						+ to_string(ce_MAXBUFFERSIZE / (1024 * 1024)) 
+						+ " MB";
 
 						m_bShowErrorPopup = true;
 					}
@@ -1079,7 +1085,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				else
 				{
 					m_ErrorMessage = "Could not open file: "
-									 + m_SelectedFile.string();
+								   + m_SelectedFile.string();
 				}
 			}
 
@@ -1145,7 +1151,7 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				else
 				{
 					m_ErrorMessage = "Failed to load image: " 
-									 + m_SelectedFile.filename().string();
+								   + m_SelectedFile.filename().string();
 
 					m_bShowErrorPopup = true;
 					m_bImgLoaded = false;

@@ -1,8 +1,12 @@
 # File Explorer
 
+<p align="center">
+  <img src="assets/Icons/Logo.png" />
+</p>
+
 A modern file explorer application built with C++ using Raylib and Dear ImGui frameworks.
 
-![screenshot](assets/screenshot.png)
+![screenshot](assets/Image/screenshot.png)
 
 ## Dependencies
 

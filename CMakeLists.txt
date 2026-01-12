@@ -32,7 +32,6 @@ set(IMGUI_SRC
     imgui/imgui_draw.cpp
     imgui/imgui_tables.cpp
     imgui/imgui_widgets.cpp
-    # imgui/imgui_demo.cpp
 )
 
 # Copy assets to the build directory
@@ -40,8 +39,12 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/assets")
     file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
+if (WIN32)
+    set(APP_ICON app_icon.rc)
+endif()
+
 # Create executable
-add_executable(main ${PROJECT_SRC_CPP} ${RLIMGUI_SRC} ${IMGUI_SRC})
+add_executable(main ${PROJECT_SRC_CPP} ${RLIMGUI_SRC} ${IMGUI_SRC} ${APP_ICON})
 
 # Add include directories — this is what lets you include .hpp/.h files
 target_include_directories(main PRIVATE
