@@ -1,7 +1,7 @@
 # File Explorer
 
 <p align="center">
-  <img src="assets/Icons/Logo.png" />
+  <img src="assets/Icons/Logo.png" hight="214" width="214" />
 </p>
 
 A modern file explorer application built with C++ using Raylib and Dear ImGui frameworks.
