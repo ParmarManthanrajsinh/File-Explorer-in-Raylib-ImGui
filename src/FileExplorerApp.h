@@ -1,5 +1,6 @@
 #pragma once
 
+#include <format>
 #include <array>
 #include <filesystem>
 #include <fstream>
@@ -9,6 +10,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <misc/cpp/imgui_stdlib.h>
 using namespace std;
 namespace fs = std::filesystem;
 constexpr int ce_MAXBUFFERSIZE = 5 * 1024 * 1024; // 5MB buffer

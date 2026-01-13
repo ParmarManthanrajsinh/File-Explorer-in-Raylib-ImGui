@@ -1,10 +1,11 @@
-#include "FileExplorerApp.hpp"
+#include "FileExplorerApp.h"
 #include "ImGuiCustomTheme.h"
 
 FileExplorerApp::FileExplorerApp()
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(900, 500, "File Explorer");
+	MaximizeWindow();
 	Image img = LoadImage("assets/Icons/Logo.png");
 	SetWindowIcon(img);
 	UnloadImage(img);
@@ -27,11 +28,11 @@ FileExplorerApp::FileExplorerApp()
 		ImGuiFileBrowserFlags_NoStatusBar
 	);
 
-	current_path = "";			// Start with the current working directory
-	m_SelectedFile = fs::path();// To store the selected file path
-	m_FileContent.clear();		// Store file content for editing
-	m_bFileLoaded = false;		// Track if file is loaded
-	m_bFileModified = false;	// Track if file has been modified
+	current_path = "";		 // Start with the current working directory
+	m_SelectedFile = fs::path(); // To store the selected file path
+	m_FileContent.clear();		 // Store file content for editing
+	m_bFileLoaded = false;		 // Track if file is loaded
+	m_bFileModified = false;	 // Track if file has been modified
 	m_bExit = false;
 
 	// Image handling variables
@@ -378,8 +379,8 @@ void FileExplorerApp::HandleCreateFolderPopup(bool& b_CreateNewFolder)
 		)
 	)
 	{
-		static char s_FolderName[128] = "";
-		ImGui::InputText("Folder Name", s_FolderName, sizeof(s_FolderName));
+		static string s_FolderName{};
+		ImGui::InputText("Folder Name", &s_FolderName);
 		if (ImGui::Button("Create"))
 		{
 			fs::path new_folder_path = current_path / s_FolderName;
@@ -429,12 +430,11 @@ void FileExplorerApp::HandleCreateFilePopup(bool& b_CreateNewFile)
 		)
 	)
 	{
-		static char s_NewFileName[128] = "";
+		static string s_NewFileName{};
 		ImGui::InputText
 		(
 			"File Name", 
-			s_NewFileName, 
-			sizeof(s_NewFileName)
+			&s_NewFileName
 		);
 
 		if (ImGui::Button("Create"))
@@ -494,14 +494,15 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 		)
 	)
 	{
-		static char s_NewName[128] = "";
-		static bool sb_FirstFrame = true;
+		static string s_NewName{};
+		static bool sb_FirstFrame = true;	
 
 		bool b_RenamingSelectedFile = !m_SelectedFile.empty()
 			&& fs::exists(m_SelectedFile);
 
 		bool b_IsDir = b_RenamingSelectedFile ?
-			fs::is_directory(m_SelectedFile) : fs::is_directory(current_path);
+		   	 fs::is_directory(m_SelectedFile) :  
+			 fs::is_directory(current_path);
 
 		// Initialize the input field with current filename when popup first opens
 		if (sb_FirstFrame)
@@ -509,38 +510,26 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 			if (b_RenamingSelectedFile)
 			{
 				// Renaming the selected file/folder
-				strncpy
-				(
-					s_NewName,
-					m_SelectedFile.filename().string().c_str(),
-					sizeof(s_NewName) - 1
-				);
+				s_NewName = m_SelectedFile.filename().string();
 			}
 			else
 			{
 				// Renaming the current directory
-				strncpy
-				(
-					s_NewName,
-					current_path.filename().string().c_str(),
-					sizeof(s_NewName) - 1
-				);
+				s_NewName = current_path.filename().string();
 			}
-			s_NewName[sizeof(s_NewName) - 1] = '\0';
 			sb_FirstFrame = false;
 		}
 
 		ImGui::InputText
 		(
 			b_IsDir ? "New Folder Name" : "New File Name",
-			s_NewName,
-			sizeof(s_NewName)
+            &s_NewName
 		);
 
 		if (ImGui::Button("Rename"))
 		{
 			// Validate input
-			if (strlen(s_NewName) == 0)
+			if (s_NewName.empty())
 			{
 				m_ErrorMessage = "Name cannot be empty!";
 				m_bShowErrorPopup = true;
@@ -603,7 +592,7 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 			}
 
 			// Reset for next use and close popup
-			memset(s_NewName, 0, sizeof(s_NewName));
+			s_NewName.clear();
 			sb_FirstFrame = true;
 			ImGui::CloseCurrentPopup();
 		}
@@ -612,12 +601,7 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 		if (ImGui::Button("Cancel"))
 		{
 			// Reset for next use and close popup
-			memset
-			(
-				s_NewName, 
-				0, 
-				sizeof(s_NewName)
-			);
+			s_NewName.clear();
 			sb_FirstFrame = true;
 			ImGui::CloseCurrentPopup();
 		}
@@ -684,7 +668,7 @@ void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 			catch (const fs::filesystem_error& ex)
 			{
 				m_ErrorMessage = "Error deleting file/folder: " 
-								 + string(ex.what());
+							   + string(ex.what());
 				m_bShowErrorPopup = true;
 			}
 			ImGui::CloseCurrentPopup();
@@ -729,7 +713,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 		ImGuiWindowFlags_NoResize
 	);
 
-	if (current_path == "")
+	if (current_path.empty())
 	{
 		ImGui::Text("No folder opened\n");
 		if (ImGui::Button("Open Folder", ImVec2(-1, 0)))
@@ -1253,25 +1237,19 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 // Function to format file sizes
 string FileExplorerApp::FormatSize(double size_in_bytes)
 {
-	constexpr std::array<const char*, 5> ce_UNITS =
+	constexpr std::array<string_view, 5> ce_UNITS =
 	{
 		"B", "KB", "MB", "GB", "TB"
 	};
 
-	uint8_t unit_index = 0;
-	while (size_in_bytes >= 1024.0f && unit_index < 4)
-	{
-		size_in_bytes /= 1024.0f;
-		unit_index++;
-	}
+	std::size_t unit_idx = 0;
+    while (size_in_bytes >= 1024.0 && (unit_idx + 1) < ce_UNITS.size())
+    {
+        size_in_bytes /= 1024.0;
+        ++unit_idx;
+    }
 
-	std::ostringstream out;
-	out << std::fixed
-		<< std::setprecision(2)
-		<< size_in_bytes
-		<< " " 
-		<< ce_UNITS.at(unit_index);
-	return out.str();
+	return std::format("{:.2f} {}", size_in_bytes, ce_UNITS[unit_idx]);
 }
 
 // Function to get files in a directory
