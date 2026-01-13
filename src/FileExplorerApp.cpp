@@ -28,7 +28,7 @@ FileExplorerApp::FileExplorerApp()
 		ImGuiFileBrowserFlags_NoStatusBar
 	);
 
-	current_path = "";		 // Start with the current working directory
+	current_path = "";		 	 // Start with the current working directory
 	m_SelectedFile = fs::path(); // To store the selected file path
 	m_FileContent.clear();		 // Store file content for editing
 	m_bFileLoaded = false;		 // Track if file is loaded
@@ -84,7 +84,6 @@ void FileExplorerApp::Run()
 	{
 		BeginDrawing();
 		ClearBackground(BLACK);
-
 		rlImGuiBegin();
 
 		static bool sb_Open = false;
@@ -316,7 +315,7 @@ void FileExplorerApp::ProcessSaveFile(bool& b_Save)
 		else
 		{
 			m_ErrorMessage = 
-				"Could not save file: " + m_SelectedFile.string();
+			"Could not save file: " + m_SelectedFile.string();
 			
 			m_bShowErrorPopup = true;
 			b_Save = false;
@@ -501,7 +500,7 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 			&& fs::exists(m_SelectedFile);
 
 		bool b_IsDir = b_RenamingSelectedFile ?
-		   	 fs::is_directory(m_SelectedFile) :  
+			 fs::is_directory(m_SelectedFile) :  
 			 fs::is_directory(current_path);
 
 		// Initialize the input field with current filename when popup first opens
@@ -523,7 +522,7 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 		ImGui::InputText
 		(
 			b_IsDir ? "New Folder Name" : "New File Name",
-            &s_NewName
+			&s_NewName
 		);
 
 		if (ImGui::Button("Rename"))
@@ -626,7 +625,8 @@ void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 			&& fs::exists(m_SelectedFile);
 
 		bool b_IsDir = b_RenamingSelectedFile ?
-			fs::is_directory(m_SelectedFile) : fs::is_directory(current_path);
+			 fs::is_directory(m_SelectedFile) : 
+			 fs::is_directory(current_path);
 
 		if (b_RenamingSelectedFile)
 		{
@@ -767,20 +767,35 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 	}
 
 	// Get and display files with better organization
-	auto files = GetFilesInDirectory(current_path);
+	auto directory_contents = GetFilesInDirectory(current_path);
+
+	enum class e_FileType { DIR, FILE };
+
+	struct FileEntry
+	{
+		std::string name;
+		e_FileType type;
+		string size_or_marker;
+	};
 
 	// Separate directories and files
-	vector<pair<string, string>> directories;
-	vector<pair<string, string>> regular_files;
+	vector<FileEntry> dir_entries;
+	vector<FileEntry> file_entries;
 
-	for (const auto& FILE : files)
+	for (const auto& [name, info] : directory_contents)
 	{
-		(FILE.second == "[D]") ? directories.emplace_back(FILE) 
-							   : regular_files.emplace_back(FILE);
+		if(info == "[D]")
+		{
+			dir_entries.push_back(FileEntry{name, e_FileType::DIR, "[D]"});
+		}
+		else
+		{
+			file_entries.push_back(FileEntry{name, e_FileType::FILE, info});
+		}
 	}
 
 	// Display directories first
-	if (!directories.empty())
+	if (!dir_entries.empty())
 	{
 		ImGui::TextColored
 		(
@@ -790,12 +805,12 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 			), 
 			"Directories:"
 		);
-		for (const auto& DIR : directories)
+		for (const auto& ENTRY : dir_entries)
 		{
-			string label = DIR.first;
+			string label = ENTRY.name;
 			bool b_IsSelected = 
 			(
-				m_SelectedFile == current_path / DIR.first
+				m_SelectedFile == current_path / ENTRY.name
 			);
 
 			// Start a group to keep icon and text together
@@ -818,7 +833,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 			// Then draw the selectable
 			if (ImGui::Selectable(label.c_str(), b_IsSelected))
 			{
-				current_path /= DIR.first;
+				current_path /= ENTRY.name;
 				// Clean up any loaded resources
 				if (m_bImgLoaded && m_ImgTexture.id != 0)
 				{
@@ -837,15 +852,15 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 	}
 
 	// Display files
-	if (!regular_files.empty())
+	if (!file_entries.empty())
 	{
 		ImGui::TextColored(ImVec4(0.7f, 1.0f, 0.7f, 1.0f), "Files:");
-		for (const auto& FILE : regular_files)
+		for (const auto& ENTRY : file_entries)
 		{
-			fs::path file_path = current_path / FILE.first;
+			fs::path file_path = current_path / ENTRY.name;
 			bool b_IsSelected = (m_SelectedFile == file_path);
 			Texture2D icon = m_FileIcon;
-			string ext = fs::path(FILE.first).extension().string();
+			string ext = fs::path(ENTRY.name).extension().string();
 
 			if
 			(
@@ -873,7 +888,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 				icon = m_EditFileIcon;
 			}
 
-			string label = FILE.first + " (" + FILE.second + ")";
+			string label = ENTRY.name + " (" + ENTRY.size_or_marker + ")";
 
 			// Start a group to keep icon and text together
 			ImGui::BeginGroup();
@@ -919,7 +934,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 
 	ImGui::Separator();
 
-	if (files.empty())
+	if (directory_contents.empty())
 	{
 		ImGui::TextColored
 		(
@@ -937,8 +952,8 @@ void FileExplorerApp::UpdateSideMenuWidth()
 {
 	if 
 	(
-		ImGui::IsWindowHovered() 
-		&& ImGui::IsMouseDragging
+		ImGui::IsWindowHovered() && 
+		ImGui::IsMouseDragging
 		(
 			ImGuiMouseButton_Left
 		)
@@ -1120,13 +1135,11 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				{
 					UnloadTexture(m_ImgTexture);
 				}
-
 				// Try to load the new image
 				Image img = LoadImage(m_SelectedFile.string().c_str());
 				if (img.data != nullptr)
 				{
 					m_ImgTexture = LoadTextureFromImage(img);
-
 					// Free the image data, keep only the texture
 					UnloadImage(img); 
 					m_bImgLoaded = true;
@@ -1136,37 +1149,28 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				{
 					m_ErrorMessage = "Failed to load image: " 
 								   + m_SelectedFile.filename().string();
-
 					m_bShowErrorPopup = true;
 					m_bImgLoaded = false;
 				}
 			}
-
 			// Display the image if loaded successfully
 			if (m_bImgLoaded && m_ImgTexture.id != 0)
 			{
 				// Calculate display size while maintaining aspect ratio
 				float img_width = static_cast<float>(m_ImgTexture.width);
 				float img_height = static_cast<float>(m_ImgTexture.height);
-
 				// Leave some margins
 				float available_width = 
 					ImGui::GetContentRegionAvail().x - 20; 
-
 				float available_height = 
 					ImGui::GetContentRegionAvail().y - 20; 
-
 				float scale_x = available_width / img_width;
 				float scale_y = available_height / img_height;
 				float scale = min(scale_x, scale_y);
-
 				// Don't scale up small images too much
-				if (scale > 2.0f)
-					scale = 2.0f;
-
+				if (scale > 2.0f) scale = 2.0f;
 				float display_width = img_width * scale;
 				float display_height = img_height * scale;
-
 				ImGui::Text
 				(
 					"Dimensions: %dx%d pixels", 
@@ -1175,15 +1179,12 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				);
 				ImGui::Text("Display Scale: %.2f", scale);
 				ImGui::Separator();
-
 				// Center the image horizontally
 				float cursor_x = (available_width - display_width) * 0.5f;
-
 				if (cursor_x > 0)
 				{
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + cursor_x);
 				}
-
 				// Use scrollable child window for large images
 				ImGui::BeginChild
 				(
@@ -1192,7 +1193,6 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 					false, 
 					ImGuiWindowFlags_HorizontalScrollbar
 				);
-
 				rlImGuiImageSize
 				(
 					&m_ImgTexture, 
@@ -1212,7 +1212,6 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 				), 
 				"File format not supported for preview"
 			);
-
 			ImGui::Text("Extension: %s", file_ext.c_str());
 			ImGui::Separator();
 			ImGui::Text("Supported text formats:");
@@ -1220,16 +1219,14 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 			(
 				"Code files: .cpp, .h, .py, .js, .html, .css, etc."
 			);
-
 			ImGui::BulletText
 			(
 				"Documents: .txt, .md, .json, .xml, .yaml, etc."
 			);
-
 			ImGui::Text("Supported image formats:");
 			ImGui::BulletText("Images: .jpg, .png, .bmp");
 		}
-
+		
 		ImGui::End(); // End file editor/viewer window
 	}
 }
@@ -1243,11 +1240,11 @@ string FileExplorerApp::FormatSize(double size_in_bytes)
 	};
 
 	std::size_t unit_idx = 0;
-    while (size_in_bytes >= 1024.0 && (unit_idx + 1) < ce_UNITS.size())
-    {
-        size_in_bytes /= 1024.0;
-        ++unit_idx;
-    }
+	while (size_in_bytes >= 1024.0 && (unit_idx + 1) < ce_UNITS.size())
+	{
+		size_in_bytes /= 1024.0;
+		++unit_idx;
+	}
 
 	return std::format("{:.2f} {}", size_in_bytes, ce_UNITS[unit_idx]);
 }
