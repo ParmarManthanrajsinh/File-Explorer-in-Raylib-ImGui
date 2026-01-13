@@ -3,79 +3,93 @@
 
 FileExplorerApp::FileExplorerApp()
 {
-	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-	InitWindow(900, 500, "File Explorer");
-	MaximizeWindow();
-	Image img = LoadImage("assets/Icons/Logo.png");
-	SetWindowIcon(img);
-	UnloadImage(img);
-	SetTargetFPS(120);
-	rlImGuiSetup(true);
-	ImCustomTheme();
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(900, 500, "File Explorer");
+    MaximizeWindow();
+    Image img = LoadImage("assets/Icons/Logo.png");
+    SetWindowIcon(img);
+    UnloadImage(img);
+    SetTargetFPS(120);
+    rlImGuiSetup(true);
+    ImCustomTheme();
 
-	// Load Icon
-	m_FileIcon = LoadTexture("assets/icons/file.png");
-	m_FolderIcon = LoadTexture("assets/icons/folder.png");
-	m_ImgIcon = LoadTexture("assets/icons/image.png");
-	m_EditFileIcon = LoadTexture("assets/icons/edit_file.png");
+    // Load Icon
+    m_FileIcon = LoadTexture("assets/icons/file.png");
+    m_FolderIcon = LoadTexture("assets/icons/folder.png");
+    m_ImgIcon = LoadTexture("assets/icons/image.png");
+    m_EditFileIcon = LoadTexture("assets/icons/edit_file.png");
 
-	// Initialize File Browser
-	m_FileBrowser = ImGui::FileBrowser
-	(
-		ImGuiFileBrowserFlags_SelectDirectory  |
-		ImGuiFileBrowserFlags_EnterNewFilename |
-		ImGuiFileBrowserFlags_NoModal          |
-		ImGuiFileBrowserFlags_NoStatusBar
-	);
+    // Initialize File Browser
+    m_FileBrowser = ImGui::FileBrowser
+    (
+        ImGuiFileBrowserFlags_SelectDirectory  |
+        ImGuiFileBrowserFlags_EnterNewFilename |
+        ImGuiFileBrowserFlags_NoModal          |
+        ImGuiFileBrowserFlags_NoStatusBar
+    );
 
-	current_path = "";		 	 // Start with the current working directory
-	m_SelectedFile = fs::path(); // To store the selected file path
-	m_FileContent.clear();		 // Store file content for editing
-	m_bFileLoaded = false;		 // Track if file is loaded
-	m_bFileModified = false;	 // Track if file has been modified
-	m_bExit = false;
+    current_path = "";              // Start with the current working directory
+    m_SelectedFile = fs::path();    // To store the selected file path
+    m_bFileLoaded = false;          // Track if file is loaded
+    m_bFileModified = false;        // Track if file has been modified
+    m_bExit = false;
 
-	// Image handling variables
-	m_ImgTexture = { 0 };			// Initialize to empty texture
-	m_bImgLoaded = false;			// Track if image is loaded
-	m_LoadedImgPath = fs::path();	// Track which image is currently loaded
+    // Image handling variables
+    m_ImgTexture = { 0 };           // Initialize to empty texture
+    m_bImgLoaded = false;           // Track if image is loaded
+    m_LoadedImgPath = fs::path();   // Track which image is currently loaded
 
-	// UI state variables
-	m_bShowSaveDialog = false;
-	m_bShowErrorPopup = false;
-	m_ErrorMessage.clear();
-	m_SideMenuWidth = 300.0f; // Make resizable
+    // UI state variables
+    m_bShowSaveDialog = false;
+    m_bShowErrorPopup = false;
+    m_ErrorMessage.clear();
+    m_SideMenuWidth = 300.0f; // Make resizable
 
-	m_SupportedFileTypes =
-	{
-		".txt", ".cpp", ".h",
-		".hpp", ".c", ".py",
-		".js", ".html",".css",
-		".json", ".md", ".xml",
-		".yaml", ".ini", ".log",
-		".bat", ".sh", ".php",
-		".rb", ".go", ".swift",
-		".ts", ".tsx", ".vue",
-		".sql", ".pl", ".lua",
-		".r", ".dart", ".scala",
-		".rs", ".java", ".kt"
-	};
+    // Configure the text editor
+    m_TextEditor.SetPalette(TextEditor::GetDarkPalette());
+    m_TextEditor.SetShowWhitespaces(false);
+    m_TextEditor.SetReadOnly(false);
+    m_TextEditor.SetHandleKeyboardInputs(true);
+    m_TextEditor.SetHandleMouseInputs(true);
+    m_TextEditor.SetImGuiChildIgnored(false);
 
-	m_SupportedImgTypes = 
-	{
-		".jpg", ".png", ".bmp" 
-	};
+    m_SupportedFileTypes =
+    {
+        ".txt", ".cpp", ".h",
+        ".hpp", ".c", ".py",
+        ".js", ".html",".css",
+        ".json", ".md", ".xml",
+        ".yaml", ".ini", ".log",
+        ".bat", ".sh", ".php",
+        ".rb", ".go", ".swift",
+        ".ts", ".tsx", ".vue",
+        ".sql", ".pl", ".lua",
+        ".r", ".dart", ".scala",
+        ".rs", ".java", ".kt"
+    };
+
+    m_SupportedImgTypes = 
+    {
+        ".jpg", ".png", ".bmp" 
+    };
 }
 
 FileExplorerApp::~FileExplorerApp()
 {
-	// Clean up loaded texture before closing
-	if (m_bImgLoaded && m_ImgTexture.id != 0)
-	{
-		UnloadTexture(m_ImgTexture);
-	}
-	rlImGuiShutdown();
-	CloseWindow();
+    // Clean up loaded texture before closing
+    if (m_bImgLoaded && m_ImgTexture.id != 0)
+    {
+        UnloadTexture(m_ImgTexture);
+    }
+    
+    // Clean up icons
+    UnloadTexture(m_FileIcon);
+    UnloadTexture(m_FolderIcon);
+    UnloadTexture(m_ImgIcon);
+    UnloadTexture(m_EditFileIcon);
+    
+    rlImGuiShutdown();
+    CloseWindow();
 }
 
 void FileExplorerApp::Run()
@@ -284,7 +298,7 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& b_Open)
 				m_SelectedFile = fs::path();
 				m_bFileLoaded = false;
 				m_bFileModified = false;
-				m_FileContent.clear();
+				m_TextEditor.SetText("");
 			}
 			m_FileBrowser.ClearSelected();
 			m_FileBrowser.Close();
@@ -295,32 +309,31 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& b_Open)
 // Function to process saving a file
 void FileExplorerApp::ProcessSaveFile(bool& b_Save)
 {
-	// Save File
-	if (b_Save
-		&& m_SelectedFile != fs::path()
-		&& m_bFileLoaded)
-	{
-		ofstream out_file(m_SelectedFile, ios::out | ios::binary);
-		if (out_file.is_open())
-		{
-			out_file.write
-			(
-				m_FileContent.data(), 
-				m_FileContent.size()
-			);
-			out_file.close();
-			m_bFileModified = false;
-			b_Save = false;
-		}
-		else
-		{
-			m_ErrorMessage = 
-			"Could not save file: " + m_SelectedFile.string();
-			
-			m_bShowErrorPopup = true;
-			b_Save = false;
-		}
-	}
+    // Save File
+    if (b_Save
+        && m_SelectedFile != fs::path()
+        && m_bFileLoaded)
+    {
+        // Get text from the editor
+        string content = m_TextEditor.GetText();
+        
+        ofstream out_file(m_SelectedFile, ios::out | ios::binary);
+        if (out_file.is_open())
+        {
+            out_file.write(content.data(), content.size());
+            out_file.close();
+            m_bFileModified = false;
+            b_Save = false;
+        }
+        else
+        {
+            m_ErrorMessage = 
+            "Could not save file: " + m_SelectedFile.string();
+            
+            m_bShowErrorPopup = true;
+            b_Save = false;
+        }
+    }
 }
 
 // Function to handle error popups
@@ -368,7 +381,7 @@ void FileExplorerApp::HandleCreateFolderPopup(bool& b_CreateNewFolder)
 		b_CreateNewFolder = false;
 	}
 
-	if 
+	if  
 	(
 		ImGui::BeginPopupModal
 		(
@@ -390,7 +403,7 @@ void FileExplorerApp::HandleCreateFolderPopup(bool& b_CreateNewFolder)
 				m_SelectedFile = fs::path();	// Reset selected file
 				m_bFileLoaded = false;
 				m_bFileModified = false;
-				m_FileContent.clear();
+				m_TextEditor.SetText("");
 			}
 			else
 			{
@@ -448,7 +461,7 @@ void FileExplorerApp::HandleCreateFilePopup(bool& b_CreateNewFile)
 					m_SelectedFile = new_file_path;
 					m_bFileLoaded = false;
 					m_bFileModified = false;
-					m_FileContent.clear();
+					m_TextEditor.SetText("");
 				}
 				else
 				{
@@ -568,7 +581,7 @@ void FileExplorerApp::HandleRenamePopup(bool& b_RenameFile)
 						// Reset file state
 						m_bFileLoaded = false;
 						m_bFileModified = false;
-						m_FileContent.clear();
+						m_TextEditor.SetText("");
 					}
 					catch (const fs::filesystem_error& EX)
 					{
@@ -619,7 +632,15 @@ void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 		b_Delete = false;
 	}
 
-	if (ImGui::BeginPopupModal("Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	if 
+	(
+		ImGui::BeginPopupModal
+		(
+			"Delete", 
+			nullptr, 
+			ImGuiWindowFlags_AlwaysAutoResize
+		)
+	)
 	{
 		bool b_RenamingSelectedFile = !m_SelectedFile.empty()
 			&& fs::exists(m_SelectedFile);
@@ -640,8 +661,11 @@ void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 		{
 			ImGui::Text
 			(
-				"Are you sure you want to delete the current directory '%s'?", 
-				current_path.filename().string().c_str()
+				format
+				(
+					"Are you sure you want to delete the current directory '{}'?",
+					current_path.filename().string()
+				).c_str()
 			);
 		}
 
@@ -663,7 +687,7 @@ void FileExplorerApp::HandleDeletePopup(bool& b_Delete)
 				}
 				m_bFileLoaded = false;
 				m_bFileModified = false;
-				m_FileContent.clear();
+				m_TextEditor.SetText("");
 			}
 			catch (const fs::filesystem_error& ex)
 			{
@@ -761,7 +785,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 			m_SelectedFile = fs::path();
 			m_bFileLoaded = false;
 			m_bFileModified = false;
-			m_FileContent.clear();
+			m_TextEditor.SetText("");
 		}
 		ImGui::Separator();
 	}
@@ -770,7 +794,6 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 	auto directory_contents = GetFilesInDirectory(current_path);
 
 	enum class e_FileType { DIR, FILE };
-
 	struct FileEntry
 	{
 		std::string name;
@@ -786,11 +809,11 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 	{
 		if(info == "[D]")
 		{
-			dir_entries.push_back(FileEntry{name, e_FileType::DIR, "[D]"});
+			dir_entries.emplace_back(name, e_FileType::DIR, "[D]");
 		}
 		else
 		{
-			file_entries.push_back(FileEntry{name, e_FileType::FILE, info});
+			file_entries.emplace_back(name, e_FileType::FILE, info);
 		}
 	}
 
@@ -844,7 +867,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 				m_SelectedFile = fs::path();
 				m_bFileLoaded = false;
 				m_bFileModified = false;
-				m_FileContent.clear();
+				m_TextEditor.SetText("");
 			}
 
 			ImGui::EndGroup();
@@ -924,7 +947,7 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 					m_SelectedFile = file_path;
 					m_bFileLoaded = false;
 					m_bFileModified = false;
-					m_FileContent.clear();
+					m_TextEditor.SetText("");
 				}
 			}
 
@@ -973,262 +996,256 @@ void FileExplorerApp::UpdateSideMenuWidth()
 	}
 }
 
-// Function to render the file viewer/editor
+// Function to render the file viewer/editor with syntax highlighting
 void FileExplorerApp::RenderFileViewer(float menu_bar_height)
 {
-	// File Editor/Viewer Window
-	if (m_SelectedFile != fs::path())
-	{
-		string file_name = m_SelectedFile.filename().string();
-		string window_title = file_name;
-		if (m_bFileModified)
-		{
-			window_title += " *";
-		}
+    // File Editor/Viewer Window
+    if (m_SelectedFile != fs::path())
+    {
+        string file_name = m_SelectedFile.filename().string();
+        string window_title = file_name;
+        if (m_bFileModified)
+        {
+            window_title += " *";
+        }
 
-		ImGui::SetNextWindowPos
-		(
-			ImVec2
-			(
-				m_SideMenuWidth + 5, 
-				menu_bar_height
-			), 
-			ImGuiCond_Always
-		);
+        ImGui::SetNextWindowPos
+        (
+            ImVec2
+            (
+                m_SideMenuWidth + 5, 
+                menu_bar_height
+            ), 
+            ImGuiCond_Always
+        );
 
-		ImGui::SetNextWindowSize
-		(
-			ImVec2
-			(
-				static_cast<float>(GetScreenWidth() - m_SideMenuWidth - 5),
-				static_cast<float>(GetScreenHeight() - menu_bar_height)
-			),
-			ImGuiCond_Always
-		);
+        ImGui::SetNextWindowSize
+        (
+            ImVec2
+            (
+                static_cast<float>(GetScreenWidth() - m_SideMenuWidth - 5),
+                static_cast<float>(GetScreenHeight() - menu_bar_height)
+            ),
+            ImGuiCond_Always
+        );
 
-		ImGui::Begin
-		(
-			window_title.c_str(), 
-			nullptr, 
-			ImGuiWindowFlags_NoCollapse | 
-			ImGuiWindowFlags_NoMove     | 
-			ImGuiWindowFlags_NoResize
-		);
+        ImGui::Begin
+        (
+            window_title.c_str(), 
+            nullptr, 
+            ImGuiWindowFlags_NoCollapse | 
+            ImGuiWindowFlags_NoMove     | 
+            ImGuiWindowFlags_NoResize
+        );
 
-		// File info header
-		ImGui::Text
-		(
-			"File: %s", 
-			m_SelectedFile.filename().string().c_str()
-		);
-		ImGui::Text
-		(
-			"Path: %s", 
-			m_SelectedFile.parent_path().string().c_str()
-		);
-		try
-		{
-			ImGui::Text
-			(
-				"Size: %s", 
-				FormatSize(fs::file_size(m_SelectedFile)).c_str()
-			);
-		}
-		catch (...)
-		{
-			ImGui::Text("Size: Unknown");
-		}
-		ImGui::Separator();
+        // File info header
+        ImGui::Text
+        (
+            "File: %s", 
+            m_SelectedFile.filename().string().c_str()
+        );
+        ImGui::Text
+        (
+            "Path: %s", 
+            m_SelectedFile.parent_path().string().c_str()
+        );
+        try
+        {
+            ImGui::Text
+            (
+                "Size: %s", 
+                FormatSize(fs::file_size(m_SelectedFile)).c_str()
+            );
+        }
+        catch (...)
+        {
+            ImGui::Text("Size: Unknown");
+        }
+        
+        // Show if file has been modified
+        if (m_bFileModified)
+        {
+            ImGui::SameLine();
+            ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "(Modified)");
+        }
+        
+        ImGui::Separator();
 
-		string file_ext = m_SelectedFile.extension().string();
+        string file_ext = m_SelectedFile.extension().string();
 
-		// Handle text files
-		if 
-		(
-			find
-			(
-				m_SupportedFileTypes.begin(), 
-				m_SupportedFileTypes.end(), 
-				file_ext
-			) != m_SupportedFileTypes.end()
-		)
-		{
-			if (!m_bFileLoaded)
-			{
-				ifstream FILE(m_SelectedFile, ios::in | ios::binary);
-				if (FILE.is_open())
-				{
-					FILE.seekg(0, ios::end);
-					size_t fileSize = FILE.tellg();
-					FILE.seekg(0, ios::beg);
+		// To lower case conversion ( XYZ -> xyz )
+        ranges::for_each(file_ext, [](char &c) { if (c >= 'A' && c <= 'Z') c += 32; });
 
-					if (fileSize > ce_MAXBUFFERSIZE)
-					{
-						m_ErrorMessage = "File too large! Maximum size: " 
-						+ to_string(ce_MAXBUFFERSIZE / (1024 * 1024)) 
-						+ " MB";
+        // Handle text files with syntax highlighting
+        if (ranges::contains(m_SupportedFileTypes, file_ext))
+        {
+            if (!m_bFileLoaded)
+            {
+                ifstream FILE(m_SelectedFile, ios::in | ios::binary);
+                if (FILE.is_open())
+                {
+                    FILE.seekg(0, ios::end);
+                    size_t fileSize = FILE.tellg();
+                    FILE.seekg(0, ios::beg);
 
-						m_bShowErrorPopup = true;
-					}
-					else
-					{
-						m_FileContent.resize(fileSize + 1024); // Extra buffer for editing
-						FILE.read(&m_FileContent[0], fileSize);
-						m_FileContent[fileSize] = '\0'; // Null terminate
-						m_FileContent.resize(fileSize);
-						m_bFileLoaded = true;
-						m_bFileModified = false;
-					}
-					FILE.close();
-				}
-				else
-				{
-					m_ErrorMessage = "Could not open file: "
-								   + m_SelectedFile.string();
-				}
-			}
+                    if (fileSize > ce_MAX_BUFFER_SIZE)
+                    {
+                        m_ErrorMessage = "File too large! Maximum size: " 
+                        + to_string(ce_MAX_BUFFER_SIZE / (1024 * 1024)) 
+                        + " MB";
 
-			if (m_bFileLoaded)
-			{
-				// Create a larger buffer for editing
-				static string s_EditBuffer;
-				if (s_EditBuffer.size() != m_FileContent.size() + 1024)
-				{
-					s_EditBuffer = m_FileContent;
-					s_EditBuffer.resize(m_FileContent.size() + 1024);
-				}
+                        m_bShowErrorPopup = true;
+                        FILE.close();
+                        return;
+                    }
+                    else
+                    {
+                        // Read file content
+                        vector<char> buffer(fileSize + 1);
+                        FILE.read(buffer.data(), fileSize);
+                        buffer[fileSize] = '\0';
+                        
+                        // Set text in the editor
+                        m_TextEditor.SetText(string(buffer.data()));
+                        
+                        // Set language definition based on file extension
+                        SetEditorLanguage(m_SelectedFile);
+                        
+                        m_bFileLoaded = true;
+                        m_bFileModified = false;
+                    }
+                    FILE.close();
+                }
+                else
+                {
+                    m_ErrorMessage = "Could not open file: "
+                                   + m_SelectedFile.string();
+                    m_bShowErrorPopup = true;
+                }
+            }
 
-				if 
-				(
-					ImGui::InputTextMultiline
-					(
-						"##editor", 
-						&s_EditBuffer[0], 
-						s_EditBuffer.capacity(),
-						ImVec2(-1, -1), 
-						ImGuiInputTextFlags_AllowTabInput
-					)
-				)
-				{
-					m_FileContent = s_EditBuffer.c_str(); // Update content
-					m_bFileModified = true;
-				}
-			}
-		}
+            if (m_bFileLoaded)
+            {
+                // Render the text editor with syntax highlighting
+                // Get available space
+                ImVec2 availableSize = ImGui::GetContentRegionAvail();
+                
+                // Render the TextEditor
+                m_TextEditor.Render("##TextEditor", availableSize);
+                
+                // Check if text was modified
+                if (m_TextEditor.IsTextChanged())
+                {
+                    m_bFileModified = true;
+                }
+            }
+        }
+        // Handle image files (unchanged)
+        else if (ranges::contains(m_SupportedImgTypes, file_ext))
+        {
+            // ... existing image handling code remains the same ...
+            // Only load texture if it's a different file or not loaded yet
+            if (!m_bImgLoaded || m_LoadedImgPath != m_SelectedFile)
+            {
+                // Unload previous texture if one was loaded
+                if (m_bImgLoaded && m_ImgTexture.id != 0)
+                {
+                    UnloadTexture(m_ImgTexture);
+                }
+                // Try to load the new image
+                Image img = LoadImage(m_SelectedFile.string().c_str());
+                if (img.data != nullptr)
+                {
+                    m_ImgTexture = LoadTextureFromImage(img);
+                    // Free the image data, keep only the texture
+                    UnloadImage(img); 
+                    m_bImgLoaded = true;
+                    m_LoadedImgPath = m_SelectedFile;
+                }
+                else
+                {
+                    m_ErrorMessage = "Failed to load image: " 
+                                   + m_SelectedFile.filename().string();
+                    m_bShowErrorPopup = true;
+                    m_bImgLoaded = false;
+                }
+            }
+            // Display the image if loaded successfully
+            if (m_bImgLoaded && m_ImgTexture.id != 0)
+            {
+                // Calculate display size while maintaining aspect ratio
+                float img_width = static_cast<float>(m_ImgTexture.width);
+                float img_height = static_cast<float>(m_ImgTexture.height);
+                // Leave some margins
+                float available_width = 
+                    ImGui::GetContentRegionAvail().x - 20; 
+                float available_height = 
+                    ImGui::GetContentRegionAvail().y - 20; 
+                float scale_x = available_width / img_width;
+                float scale_y = available_height / img_height;
+                float scale = min(scale_x, scale_y);
+                // Don't scale up small images too much
+                if (scale > 2.0f) scale = 2.0f;
+                float display_width = img_width * scale;
+                float display_height = img_height * scale;
+                ImGui::Text
+                (
+                    "Dimensions: %dx%d pixels", 
+                    m_ImgTexture.width, 
+                    m_ImgTexture.height
+                );
+                ImGui::Text("Display Scale: %.2f", scale);
+                ImGui::Separator();
+                // Center the image horizontally
+                float cursor_x = (available_width - display_width) * 0.5f;
+                if (cursor_x > 0)
+                {
+                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + cursor_x);
+                }
+                // Use scrollable child window for large images
+                ImGui::BeginChild
+                (
+                    "ImageView", 
+                    ImVec2(0, 0), 
+                    false, 
+                    ImGuiWindowFlags_HorizontalScrollbar
+                );
+                rlImGuiImageSize
+                (
+                    &m_ImgTexture, 
+                    static_cast<int>(display_width), 
+                    static_cast<int>(display_height)
+                );
+                ImGui::EndChild();
+            }
+        }
+        else
+        {
+            ImGui::TextColored
+            (
+                ImVec4
+                (
+                    1.0f, 0.6f, 0.0f, 1.0f
+                ), 
+                "File format not supported for preview"
+            );
+            ImGui::Text("Extension: %s", file_ext.c_str());
+            ImGui::Separator();
+            ImGui::Text("Supported text formats:");
+            ImGui::BulletText
+            (
+                "Code files: .cpp, .h, .py, .js, .html, .css, etc."
+            );
+            ImGui::BulletText
+            (
+                "Documents: .txt, .md, .json, .xml, .yaml, etc."
+            );
+            ImGui::Text("Supported image formats:");
+            ImGui::BulletText("Images: .jpg, .png, .bmp");
+        }
 
-		// Handle image files
-		else if 
-		(
-			find
-			(
-				m_SupportedImgTypes.begin(), 
-				m_SupportedImgTypes.end(), 
-				file_ext
-			) != m_SupportedImgTypes.end()
-		)
-		{
-			// Only load texture if it's a different file or not loaded yet
-			if (!m_bImgLoaded || m_LoadedImgPath != m_SelectedFile)
-			{
-				// Unload previous texture if one was loaded
-				if (m_bImgLoaded && m_ImgTexture.id != 0)
-				{
-					UnloadTexture(m_ImgTexture);
-				}
-				// Try to load the new image
-				Image img = LoadImage(m_SelectedFile.string().c_str());
-				if (img.data != nullptr)
-				{
-					m_ImgTexture = LoadTextureFromImage(img);
-					// Free the image data, keep only the texture
-					UnloadImage(img); 
-					m_bImgLoaded = true;
-					m_LoadedImgPath = m_SelectedFile;
-				}
-				else
-				{
-					m_ErrorMessage = "Failed to load image: " 
-								   + m_SelectedFile.filename().string();
-					m_bShowErrorPopup = true;
-					m_bImgLoaded = false;
-				}
-			}
-			// Display the image if loaded successfully
-			if (m_bImgLoaded && m_ImgTexture.id != 0)
-			{
-				// Calculate display size while maintaining aspect ratio
-				float img_width = static_cast<float>(m_ImgTexture.width);
-				float img_height = static_cast<float>(m_ImgTexture.height);
-				// Leave some margins
-				float available_width = 
-					ImGui::GetContentRegionAvail().x - 20; 
-				float available_height = 
-					ImGui::GetContentRegionAvail().y - 20; 
-				float scale_x = available_width / img_width;
-				float scale_y = available_height / img_height;
-				float scale = min(scale_x, scale_y);
-				// Don't scale up small images too much
-				if (scale > 2.0f) scale = 2.0f;
-				float display_width = img_width * scale;
-				float display_height = img_height * scale;
-				ImGui::Text
-				(
-					"Dimensions: %dx%d pixels", 
-					m_ImgTexture.width, 
-					m_ImgTexture.height
-				);
-				ImGui::Text("Display Scale: %.2f", scale);
-				ImGui::Separator();
-				// Center the image horizontally
-				float cursor_x = (available_width - display_width) * 0.5f;
-				if (cursor_x > 0)
-				{
-					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + cursor_x);
-				}
-				// Use scrollable child window for large images
-				ImGui::BeginChild
-				(
-					"ImageView", 
-					ImVec2(0, 0), 
-					false, 
-					ImGuiWindowFlags_HorizontalScrollbar
-				);
-				rlImGuiImageSize
-				(
-					&m_ImgTexture, 
-					static_cast<int>(display_width), 
-					static_cast<int>(display_height)
-				);
-				ImGui::EndChild();
-			}
-		}
-		else
-		{
-			ImGui::TextColored
-			(
-				ImVec4
-				(
-					1.0f, 0.6f, 0.0f, 1.0f
-				), 
-				"File format not supported for preview"
-			);
-			ImGui::Text("Extension: %s", file_ext.c_str());
-			ImGui::Separator();
-			ImGui::Text("Supported text formats:");
-			ImGui::BulletText
-			(
-				"Code files: .cpp, .h, .py, .js, .html, .css, etc."
-			);
-			ImGui::BulletText
-			(
-				"Documents: .txt, .md, .json, .xml, .yaml, etc."
-			);
-			ImGui::Text("Supported image formats:");
-			ImGui::BulletText("Images: .jpg, .png, .bmp");
-		}
-		
-		ImGui::End(); // End file editor/viewer window
-	}
+        ImGui::End(); // End file editor/viewer window
+    }
 }
 
 // Function to format file sizes
@@ -1272,4 +1289,122 @@ map<string, string> FileExplorerApp::GetFilesInDirectory(const fs::path& path)
 	}
 
 	return files;
+}
+
+// Helper function to determine language from file extension
+const TextEditor::LanguageDefinition& FileExplorerApp::GetLanguageDefinition
+(
+	const string& extension
+)
+{
+    static const TextEditor::LanguageDefinition& defaultLang = TextEditor::LanguageDefinition::CPlusPlus();
+    
+    if 
+	(
+		extension == ".cpp" || 
+		extension == ".h"   || 
+		extension == ".hpp" || 
+		extension == ".cxx" || 
+		extension == ".hxx"
+	)
+	{
+		return TextEditor::LanguageDefinition::CPlusPlus();
+	}
+    else if (extension == ".c")
+	{
+		return TextEditor::LanguageDefinition::C();
+	}
+    else if (extension == ".hlsl" || extension == ".fx")
+    {
+		return TextEditor::LanguageDefinition::HLSL();
+	}
+    else if 
+	(
+		extension == ".glsl" || 
+		extension == ".vert" || 
+		extension == ".frag" || 
+		extension == ".geom"
+	)
+	{
+		return TextEditor::LanguageDefinition::GLSL();
+	}
+    else if (extension == ".sql")
+	{
+		return TextEditor::LanguageDefinition::SQL();
+	}
+    else if (extension == ".as")
+    {
+		return TextEditor::LanguageDefinition::AngelScript();
+	}
+    else if (extension == ".lua")
+    {
+		return TextEditor::LanguageDefinition::Lua();
+	}
+    else if (extension == ".py")
+    {
+        // Python-like highlighting (we'll use C++ as base for now)
+        static TextEditor::LanguageDefinition python_lang = TextEditor::LanguageDefinition::CPlusPlus();
+        python_lang.mName = "Python";
+        python_lang.mCommentStart = "'''";
+        python_lang.mCommentEnd = "'''";
+        python_lang.mSingleLineComment = "#";
+        return python_lang;
+    }
+    else if (extension == ".js" || extension == ".ts" || extension == ".tsx")
+    {
+        // JavaScript/TypeScript (use C++ as base)
+        static TextEditor::LanguageDefinition jsLang = TextEditor::LanguageDefinition::CPlusPlus();
+        jsLang.mName = "JavaScript";
+        return jsLang;
+    }
+    else if (extension == ".html" || extension == ".htm")
+    {
+        // HTML (use C++ as base)
+        static TextEditor::LanguageDefinition htmlLang = TextEditor::LanguageDefinition::CPlusPlus();
+        htmlLang.mName = "HTML";
+        htmlLang.mSingleLineComment = "<!--";
+        return htmlLang;
+    }
+    else if (extension == ".css")
+    {
+        // CSS (use C++ as base)
+        static TextEditor::LanguageDefinition cssLang = TextEditor::LanguageDefinition::CPlusPlus();
+        cssLang.mName = "CSS";
+        cssLang.mSingleLineComment = "/*";
+        return cssLang;
+    }
+    else if (extension == ".java")
+    {
+        static TextEditor::LanguageDefinition javaLang = TextEditor::LanguageDefinition::CPlusPlus();
+        javaLang.mName = "Java";
+        return javaLang;
+    }
+    else if (extension == ".rs")
+    {
+        static TextEditor::LanguageDefinition rustLang = TextEditor::LanguageDefinition::CPlusPlus();
+        rustLang.mName = "Rust";
+        rustLang.mSingleLineComment = "//";
+        return rustLang;
+    }
+    else if (extension == ".go")
+    {
+        static TextEditor::LanguageDefinition goLang = TextEditor::LanguageDefinition::CPlusPlus();
+        goLang.mName = "Go";
+        goLang.mSingleLineComment = "//";
+        return goLang;
+    }
+    
+    return defaultLang;
+}
+
+// Helper function to set editor language based on file extension
+void FileExplorerApp::SetEditorLanguage(const fs::path& filePath)
+{
+    string ext = filePath.extension().string();
+    
+    // Convert to lowercase for comparison
+	std::ranges::for_each(ext, [](char& c) { if (c >= 'A' && c <= 'Z') c += 32; });
+
+    // Set the language definition
+    m_TextEditor.SetLanguageDefinition(GetLanguageDefinition(ext));
 }

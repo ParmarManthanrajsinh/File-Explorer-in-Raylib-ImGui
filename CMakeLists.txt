@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 project(FileExplorer)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -35,6 +35,11 @@ set(IMGUI_SRC
     imgui/misc/cpp/imgui_stdlib.cpp
 )
 
+# TextEditor sources
+set(TEXTEDITOR_SRC
+    TextEditor/TextEditor.cpp
+)
+
 # Copy assets to the build directory
 if(EXISTS "${CMAKE_SOURCE_DIR}/assets")
     file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
@@ -45,13 +50,14 @@ if (WIN32)
 endif()
 
 # Create executable
-add_executable(main ${PROJECT_SRC_CPP} ${RLIMGUI_SRC} ${IMGUI_SRC} ${APP_ICON})
+add_executable(main ${PROJECT_SRC_CPP} ${RLIMGUI_SRC} ${IMGUI_SRC} ${TEXTEDITOR_SRC} ${APP_ICON})
 
 target_include_directories(main PRIVATE
     ${raylib_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/imgui
     ${CMAKE_SOURCE_DIR}/rlImGui
     ${CMAKE_SOURCE_DIR}/src 
+    ${CMAKE_SOURCE_DIR}/TextEditor  
 )
 
 target_link_libraries(main raylib)

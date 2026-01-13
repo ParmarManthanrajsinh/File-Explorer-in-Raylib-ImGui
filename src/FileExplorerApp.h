@@ -11,98 +11,111 @@
 #include <string>
 #include <vector>
 #include <misc/cpp/imgui_stdlib.h>
+#include <ranges>
+#include "TextEditor.h"  // Include the TextEditor header
 using namespace std;
 namespace fs = std::filesystem;
-constexpr int ce_MAXBUFFERSIZE = 5 * 1024 * 1024; // 5MB buffer
+constexpr int ce_MAX_BUFFER_SIZE = 5 * 1024 * 1024; // 5MB buffer
 
 class FileExplorerApp
 {
 public:
-	FileExplorerApp();
-	~FileExplorerApp();
-	void Run();
+    FileExplorerApp();
+    ~FileExplorerApp();
+    void Run();
 
 private:
-	// Function to render the main menu bar
-	void RenderMainMenuBar
-	(
-		bool& b_Open, 
-		bool& b_Save, 
-		bool& b_CreateNewFolder, 
-		bool& b_CreateNewFile, 
-		bool& b_RenameFile, 
-		bool& b_Delete
-	);
+    // Function to render the main menu bar
+    void RenderMainMenuBar
+    (
+        bool& b_Open, 
+        bool& b_Save, 
+        bool& b_CreateNewFolder, 
+        bool& b_CreateNewFile, 
+        bool& b_RenameFile, 
+        bool& b_Delete
+    );
 
-	// Function to apply keyboard shortcuts
-	void ApplyShortcuts
-	(
-		bool& b_Open, 
-		bool& b_Save, 
-		bool& b_CreateNewFolder, 
-		bool& b_CreateNewFile, 
-		bool& b_RenameFile
-	);
+    // Function to apply keyboard shortcuts
+    void ApplyShortcuts
+    (
+        bool& b_Open, 
+        bool& b_Save, 
+        bool& b_CreateNewFolder, 
+        bool& b_CreateNewFile, 
+        bool& b_RenameFile
+    );
 
-	// Function to process the file browser dialog
-	void ProcessFileBrowserDialog(bool& b_Open);
+    // Function to process the file browser dialog
+    void ProcessFileBrowserDialog(bool& b_Open);
 
-	// Function to process saving a file
-	void ProcessSaveFile(bool& b_Save);
+    // Function to process saving a file
+    void ProcessSaveFile(bool& b_Save);
 
-	// Function to handle error popups
-	void HandleErrorPopup();
+    // Function to handle error popups
+    void HandleErrorPopup();
 
-	// Function to handle the "Create Folder" popup
-	void HandleCreateFolderPopup(bool& b_CreateNewFolder);
+    // Function to handle the "Create Folder" popup
+    void HandleCreateFolderPopup(bool& b_CreateNewFolder);
 
-	// Function to handle the "Create File" popup
-	void HandleCreateFilePopup(bool& b_CreateNewFile);
+    // Function to handle the "Create File" popup
+    void HandleCreateFilePopup(bool& b_CreateNewFile);
 
-	// Function to handle the "Rename" popup
-	void HandleRenamePopup(bool& b_RenameFile);
+    // Function to handle the "Rename" popup
+    void HandleRenamePopup(bool& b_RenameFile);
 
-	// Function to handle the "Delete" popup
-	void HandleDeletePopup(bool& b_Delete);
+    // Function to handle the "Delete" popup
+    void HandleDeletePopup(bool& b_Delete);
 
-	// Function to render the explorer side panel
-	void RenderExplorerPanel(float menu_bar_height, bool& b_Open);
+    // Function to render the explorer side panel
+    void RenderExplorerPanel(float menu_bar_height, bool& b_Open);
 
-	// Function to update side menu width for resizing
-	void UpdateSideMenuWidth();
+    // Function to update side menu width for resizing
+    void UpdateSideMenuWidth();
 
-	// Function to render the file viewer/editor
-	void RenderFileViewer(float menu_bar_height);
+    // Function to render the file viewer/editor with syntax highlighting
+    void RenderFileViewer(float menu_bar_height);
 
-	// Function to format file sizes
-	string FormatSize(double size_in_bytes);
+    // Function to format file sizes
+    string FormatSize(double size_in_bytes);
 
-	// Function to get files in a directory
-	map<string, string> GetFilesInDirectory(const fs::path& path);
+    // Function to get files in a directory
+    map<string, string> GetFilesInDirectory(const fs::path& path);
 
-	// Member variables
-	ImGui::FileBrowser m_FileBrowser;
-	fs::path current_path;
-	fs::path m_SelectedFile;
-	string m_FileContent;
-	bool m_bFileLoaded;
-	bool m_bFileModified;
-	bool m_bExit;
+    // Helper function to set language definition based on file extension
+    void SetEditorLanguage(const fs::path& filePath);
+    
+    // Helper function to determine language from file extension
+    const TextEditor::LanguageDefinition& GetLanguageDefinition(const string& extension);
 
-	Texture2D m_FileIcon;
-	Texture2D m_FolderIcon;
-	Texture2D m_ImgIcon;
-	Texture2D m_EditFileIcon;
+private:
+    // Member variables
+    TextEditor m_TextEditor;  // Replace the simple string editor with TextEditor
+    ImGui::FileBrowser m_FileBrowser;
+    fs::path current_path;
+    fs::path m_SelectedFile;
+    bool m_bFileLoaded;
+    bool m_bFileModified;
+    bool m_bExit;
 
-	Texture2D m_ImgTexture;
-	bool m_bImgLoaded;
-	fs::path m_LoadedImgPath;
+    Texture2D m_FileIcon;
+    Texture2D m_FolderIcon;
+    Texture2D m_ImgIcon;
+    Texture2D m_EditFileIcon;
 
-	bool m_bShowSaveDialog;
-	bool m_bShowErrorPopup;
-	string m_ErrorMessage;
-	float m_SideMenuWidth;
+    Texture2D m_ImgTexture;
+    bool m_bImgLoaded;
+    fs::path m_LoadedImgPath;
 
-	array<string, 33> m_SupportedFileTypes;
-	array<string, 3> m_SupportedImgTypes;
-};
+    bool m_bShowSaveDialog;
+    bool m_bShowErrorPopup;
+    string m_ErrorMessage;
+    float m_SideMenuWidth;
+
+    // Arrays to track supported file types
+    array<string, 33> m_SupportedFileTypes;
+    array<string, 3> m_SupportedImgTypes;
+    
+    // Map for language definitions
+    unordered_map<string, TextEditor::LanguageDefinition> m_LanguageDefinitions;
+};	
