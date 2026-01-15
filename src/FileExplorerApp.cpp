@@ -1323,11 +1323,11 @@ void FileExplorerApp::RenderFileViewer(float menu_bar_height)
             {
                 // Render the text editor with syntax highlighting
                 // Get available space
-                ImVec2 availableSize = ImGui::GetContentRegionAvail();
+                ImVec2 available_size = ImGui::GetContentRegionAvail();
                 
                 // Render the TextEditor
-                m_TextEditor.Render("##TextEditor", availableSize);
-                
+                m_TextEditor.Render("##TextEditor", available_size);
+            
                 // Check if text was modified
                 if (m_TextEditor.IsTextChanged())
                 {
