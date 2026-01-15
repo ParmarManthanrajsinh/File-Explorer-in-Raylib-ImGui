@@ -35,12 +35,14 @@ FileExplorerApp::FileExplorerApp()
     m_bExit = false;
     m_bShowExitConfirm = false;
 	m_bShowSaveBeforeOpenConfirm = false;
+    m_bShowSaveBeforeDirChangeConfirm = false;
 
     // Image handling variables
     m_ImgTexture = { 0 };           	// Initialize to empty texture
     m_bImgLoaded = false;           	// Track if image is loaded
     m_LoadedImgPath = fs::path();   	// Track which image is currently loaded
-	m_PendingFileToOpen = fs::path();   
+	m_PendingFileToOpen = fs::path();  
+    m_PendingDirectoryToNavigate = fs::path();
 
     // UI state variables
     m_bShowSaveDialog = false;
@@ -161,6 +163,8 @@ void FileExplorerApp::Run()
         HandleExitConfirmPopup();  
 
 		HandleSaveBeforeOpenPopup();
+
+        HandleSaveBeforeDirChangePopup();
 
         RenderExplorerPanel(menu_bar_height, sb_Open);
 
@@ -311,9 +315,13 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& b_Open)
             b_Open = false;
             if (m_bFileModified)
             {
-                // Show error message for directory changes
-                m_ErrorMessage = "You have unsaved changes. Please save before changing directory.";
-                m_bShowErrorPopup = true;
+                // Store the directory we want to navigate to
+                fs::path new_path = m_FileBrowser.GetDirectory();
+                if (fs::exists(new_path) && fs::is_directory(new_path))
+                {
+                    m_PendingDirectoryToNavigate = new_path;
+                    m_bShowSaveBeforeDirChangeConfirm = true;
+                }
                 m_FileBrowser.ClearSelected();
                 m_FileBrowser.Close();
                 return;
@@ -322,19 +330,7 @@ void FileExplorerApp::ProcessFileBrowserDialog(bool& b_Open)
             fs::path new_path = m_FileBrowser.GetDirectory();
             if (fs::exists(new_path) && fs::is_directory(new_path))
             {
-                current_path = new_path;
-
-                // Clean up any loaded resources when changing directory
-                if (m_bImgLoaded && m_ImgTexture.id != 0)
-                {
-                    UnloadTexture(m_ImgTexture);
-                    m_bImgLoaded = false;
-                    m_LoadedImgPath = fs::path();
-                }
-                m_SelectedFile = fs::path();
-                m_bFileLoaded = false;
-                m_bFileModified = false;
-                m_TextEditor.SetText("");
+                NavigateToDirectory(new_path);
             }
             m_FileBrowser.ClearSelected();
             m_FileBrowser.Close();
@@ -935,28 +931,18 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
     if (current_path.has_parent_path())
     {
         if (ImGui::Selectable("Back", false, ImGuiSelectableFlags_None))
-		{
-		    if (m_bFileModified)
-		    {
-		        m_ErrorMessage = "You have unsaved changes. Please save before changing directory.";
-		        m_bShowErrorPopup = true;
-		    }
-		    else
-		    {
-		        current_path = current_path.parent_path();
-		        // Clean up loaded resources when navigating back
-		        if (m_bImgLoaded && m_ImgTexture.id != 0)
-		        {
-		            UnloadTexture(m_ImgTexture);
-		            m_bImgLoaded = false;
-		            m_LoadedImgPath = fs::path();
-		        }
-		        m_SelectedFile = fs::path();
-		        m_bFileLoaded = false;
-		        m_bFileModified = false;
-		        m_TextEditor.SetText("");
-		    }
-		}
+        {
+            if (m_bFileModified)
+            {
+                // Store the directory we want to navigate to
+                m_PendingDirectoryToNavigate = current_path.parent_path();
+                m_bShowSaveBeforeDirChangeConfirm = true;
+            }
+            else
+            {
+                NavigateToDirectory(current_path.parent_path());
+            }
+        }
         ImGui::Separator();
     }
 
@@ -1026,24 +1012,12 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 			{
 			    if (m_bFileModified)
 			    {
-			        m_ErrorMessage = "You have unsaved changes. Please save before changing directory.";
-			        m_bShowErrorPopup = true;
+			        m_PendingDirectoryToNavigate = dir_path;
+                    m_bShowSaveBeforeDirChangeConfirm = true;
 			    }
 			    else
 			    {
-			        current_path = dir_path;  // Navigate to the directory
-				
-			        // Clean up any loaded resources
-			        if (m_bImgLoaded && m_ImgTexture.id != 0)
-			        {
-			            UnloadTexture(m_ImgTexture);
-			            m_bImgLoaded = false;
-			            m_LoadedImgPath = fs::path();
-			        }
-			        m_SelectedFile = fs::path();
-			        m_bFileLoaded = false;
-			        m_bFileModified = false;
-			        m_TextEditor.SetText("");
+			        NavigateToDirectory(dir_path);
 			    }
 			}
 
@@ -1126,6 +1100,72 @@ void FileExplorerApp::RenderExplorerPanel(float menu_bar_height, bool& b_Open)
 
     ImGui::EndChild(); 
     ImGui::End();      
+}
+
+void FileExplorerApp::HandleSaveBeforeDirChangePopup()
+{
+    if (m_bShowSaveBeforeDirChangeConfirm)
+    {
+        ImGui::OpenPopup("Save Changes Before Navigation");
+        m_bShowSaveBeforeDirChangeConfirm = false;
+    }
+    
+    if 
+    (
+        ImGui::BeginPopupModal
+        (
+            "Save Changes Before Navigation", 
+            nullptr, 
+            ImGuiWindowFlags_AlwaysAutoResize
+        )
+    )
+    {
+        ImGui::Text("Do you want to save changes to:");
+        ImGui::TextColored
+        (
+            ImVec4(1.0f, 1.0f, 0.5f, 1.0f), "%s", 
+            m_SelectedFile.filename().string().c_str()
+        );
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        float button_width = 100.0f;
+        if (ImGui::Button("Save", ImVec2(button_width + 20, 0)))
+        {
+            if (m_SelectedFile != fs::path() && m_bFileLoaded)
+            {
+                string content = m_TextEditor.GetText();
+                ofstream out_file(m_SelectedFile, ios::out | ios::binary);
+                if (out_file.is_open())
+                {
+                    out_file.write(content.data(), content.size());
+                    out_file.close();
+                    m_bFileModified = false;
+                }
+            }
+            NavigateToDirectory(m_PendingDirectoryToNavigate);
+            m_PendingDirectoryToNavigate = fs::path();
+            ImGui::CloseCurrentPopup();
+        }
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Don't Save", ImVec2(button_width, 0)))
+        {
+            NavigateToDirectory(m_PendingDirectoryToNavigate);
+            m_PendingDirectoryToNavigate = fs::path();
+            ImGui::CloseCurrentPopup();
+        }
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(button_width, 0)))
+        {
+            m_PendingDirectoryToNavigate = fs::path();
+            ImGui::CloseCurrentPopup();
+        }
+        
+        ImGui::EndPopup();
+    }
 }
 
 // Function to update side menu width for resizing
@@ -1575,6 +1615,23 @@ void FileExplorerApp::OpenFile(const fs::path &file_path)
     
     // Clear the pending file
     m_PendingFileToOpen = fs::path();
+}
+
+void FileExplorerApp::NavigateToDirectory(const fs::path &new_path)
+{
+    current_path = new_path;
+    
+    // Clean up any loaded resources
+    if (m_bImgLoaded && m_ImgTexture.id != 0)
+    {
+        UnloadTexture(m_ImgTexture);
+        m_bImgLoaded = false;
+        m_LoadedImgPath = fs::path();
+    }
+    m_SelectedFile = fs::path();
+    m_bFileLoaded = false;
+    m_bFileModified = false;
+    m_TextEditor.SetText("");
 }
 
 // Helper function to set editor language based on file extension
