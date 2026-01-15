@@ -12,7 +12,7 @@
 #include <vector>
 #include <misc/cpp/imgui_stdlib.h>
 #include <ranges>
-#include "TextEditor.h"  // Include the TextEditor header
+#include "TextEditor.h" 
 using namespace std;
 namespace fs = std::filesystem;
 constexpr int ce_MAX_BUFFER_SIZE = 5 * 1024 * 1024; // 5MB buffer
@@ -25,7 +25,6 @@ public:
     void Run();
 
 private:
-    // Function to render the main menu bar
     void RenderMainMenuBar
     (
         bool& b_Open, 
@@ -35,8 +34,7 @@ private:
         bool& b_RenameFile, 
         bool& b_Delete
     );
-
-    // Function to apply keyboard shortcuts
+    
     void ApplyShortcuts
     (
         bool& b_Open, 
@@ -67,6 +65,12 @@ private:
     // Function to handle the "Delete" popup
     void HandleDeletePopup(bool& b_Delete);
 
+    // Function to handle the "Exit" Popup
+    void HandleExitConfirmPopup();
+
+    // Function to handle the "Save Before Open" Popup
+    void HandleSaveBeforeOpenPopup();
+
     // Function to render the explorer side panel
     void RenderExplorerPanel(float menu_bar_height, bool& b_Open);
 
@@ -82,21 +86,22 @@ private:
     // Function to get files in a directory
     map<string, string> GetFilesInDirectory(const fs::path& path);
 
-    // Helper function to set language definition based on file extension
+    // Helper functions
     void SetEditorLanguage(const fs::path& filePath);
-    
-    // Helper function to determine language from file extension
     const TextEditor::LanguageDefinition& GetLanguageDefinition(const string& extension);
+    void OpenFile(const fs::path& file_path);
 
 private:
-    // Member variables
-    TextEditor m_TextEditor;  // Replace the simple string editor with TextEditor
+    
+    TextEditor m_TextEditor; 
     ImGui::FileBrowser m_FileBrowser;
     fs::path current_path;
     fs::path m_SelectedFile;
     bool m_bFileLoaded;
     bool m_bFileModified;
     bool m_bExit;
+    bool m_bShowExitConfirm;
+    bool m_bShowSaveBeforeOpenConfirm;
 
     Texture2D m_FileIcon;
     Texture2D m_FolderIcon;
@@ -106,6 +111,7 @@ private:
     Texture2D m_ImgTexture;
     bool m_bImgLoaded;
     fs::path m_LoadedImgPath;
+    fs::path m_PendingFileToOpen;
 
     bool m_bShowSaveDialog;
     bool m_bShowErrorPopup;
@@ -115,7 +121,5 @@ private:
     // Arrays to track supported file types
     array<string, 33> m_SupportedFileTypes;
     array<string, 3> m_SupportedImgTypes;
-    
-    // Map for language definitions
     unordered_map<string, TextEditor::LanguageDefinition> m_LanguageDefinitions;
 };	
