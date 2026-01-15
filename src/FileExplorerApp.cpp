@@ -1142,10 +1142,16 @@ void FileExplorerApp::HandleSaveBeforeDirChangePopup()
                     out_file.write(content.data(), content.size());
                     out_file.close();
                     m_bFileModified = false;
+                    NavigateToDirectory(m_PendingDirectoryToNavigate);
+                    m_PendingDirectoryToNavigate = fs::path();
+                }
+                else
+                {
+                    m_ErrorMessage = "Could not save file: " + m_SelectedFile.string();
+                    m_bShowErrorPopup = true;
+                    m_PendingDirectoryToNavigate = fs::path();
                 }
             }
-            NavigateToDirectory(m_PendingDirectoryToNavigate);
-            m_PendingDirectoryToNavigate = fs::path();
             ImGui::CloseCurrentPopup();
         }
         
