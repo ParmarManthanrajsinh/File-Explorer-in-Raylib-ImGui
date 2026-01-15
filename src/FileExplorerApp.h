@@ -74,6 +74,8 @@ private:
     // Function to render the explorer side panel
     void RenderExplorerPanel(float menu_bar_height, bool& b_Open);
 
+    void HandleSaveBeforeDirChangePopup();
+
     // Function to update side menu width for resizing
     void UpdateSideMenuWidth();
 
@@ -90,6 +92,7 @@ private:
     void SetEditorLanguage(const fs::path& filePath);
     const TextEditor::LanguageDefinition& GetLanguageDefinition(const string& extension);
     void OpenFile(const fs::path& file_path);
+    void NavigateToDirectory(const fs::path& new_path);
 
 private:
     
@@ -102,6 +105,7 @@ private:
     bool m_bExit;
     bool m_bShowExitConfirm;
     bool m_bShowSaveBeforeOpenConfirm;
+    bool m_bShowSaveBeforeDirChangeConfirm;
 
     Texture2D m_FileIcon;
     Texture2D m_FolderIcon;
@@ -112,6 +116,7 @@ private:
     bool m_bImgLoaded;
     fs::path m_LoadedImgPath;
     fs::path m_PendingFileToOpen;
+    fs::path m_PendingDirectoryToNavigate;
 
     bool m_bShowSaveDialog;
     bool m_bShowErrorPopup;
